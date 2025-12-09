@@ -8,7 +8,17 @@
 --surface: #ffffff;
 --muted: #6b7280;     /* gray-500 /
 --border: #e5e7eb;    / gray-200 */
+
+--primary: #4B2377;
+--primary-600: #4B2377;
+--primary-700: #3e1b61;
 }
+
+/* Utility helpers to use the primary variable in the app without changing Tailwind config. */
+.bg-primary { background-color: var(--primary); }
+.bg-primary-dark { background-color: var(--primary-700); }
+.hover\:bg-primary-dark:hover { background-color: var(--primary-700); }
+
 html, body {
 background: var(--bg);
 color: #111827;       /* gray-900 */
