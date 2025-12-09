@@ -1,27 +1,130 @@
 @import "tailwindcss";
-:root {
---brand: #4B2376;     /* Violet logo */
---brand-600: #5a2c8f;
---brand-700: #431c6e;
---brand-800: #361458;
---bg: #ffffff;
---surface: #ffffff;
---muted: #6b7280;     /* gray-500 /
---border: #e5e7eb;    / gray-200 */
 
---primary: #4B2377;
---primary-600: #4B2377;
---primary-700: #3e1b61;
+/* Palette classique, chaude et sobre */
+:root {
+  --brand: #4B2376;           /* Violet logo (accent) */
+  --brand-600: #5a2c8f;
+  --brand-700: #3e1b61;
+
+  --bg: #f7f5f2;              /* ivoire chaud */
+  --surface: #ffffff;
+  --surface-2: #fbfaf8;        /* variante très légère */
+  --text: #151515;             /* noir doux */
+  --muted: #6d6a66;            /* gris chaud */
+  --border: #e3ded7;           /* beige/gris très léger */
+  --ring: rgba(75, 35, 118, 0.18);
+
+  --radius: 10px;
+  --radius-sm: 8px;
+  --radius-lg: 14px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 6px 18px rgba(0,0,0,0.06);
 }
 
-/* Utility helpers to use the primary variable in the app without changing Tailwind config. */
-.bg-primary { background-color: var(--primary); }
-.bg-primary-dark { background-color: var(--primary-700); }
-.hover\:bg-primary-dark:hover { background-color: var(--primary-700); }
+/* Mode sombre facultatif (classique feutré) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0f10;
+    --surface: #151517;
+    --surface-2: #131314;
+    --text: #efefef;
+    --muted: #acaba9;
+    --border: #2a2826;
+    --ring: rgba(145, 95, 212, 0.25);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.35);
+    --shadow-md: 0 8px 28px rgba(0,0,0,0.45);
+  }
+}
 
+/* Base */
 html, body {
-background: var(--bg);
-color: #111827;       /* gray-900 */
--webkit-font-smoothing: antialiased;
--moz-osx-font-smoothing: grayscale;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Si tu peux, configure dans tailwind.config:
+   fontFamily: {
+     serif: ["'Libre Baskerville'", "Georgia", "serif"],
+     sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+   }
+*/
+
+/* Titres en serif (intemporel), texte en sans */
+.h1, h1 { font-family: var(--font-serif, Georgia, serif); font-size: 2rem; line-height: 1.25; font-weight: 700; letter-spacing: 0; }
+.h2, h2 { font-family: var(--font-serif, Georgia, serif); font-size: 1.5rem; line-height: 1.35; font-weight: 700; }
+.h3, h3 { font-family: var(--font-serif, Georgia, serif); font-size: 1.25rem; line-height: 1.4; font-weight: 700; }
+
+/* Helpers */
+.text-muted { color: var(--muted); }
+.surface { background: var(--surface); }
+.surface-2 { background: var(--surface-2); }
+.border-subtle { border: 1px solid var(--border); }
+.rounded-app { border-radius: var(--radius); }
+
+.link {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.link:hover { opacity: .9; }
+
+/* Inputs & boutons: sobres, bord fin, accent discret */
+.input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.625rem 0.75rem;
+  font-size: 0.9375rem;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.input::placeholder { color: #9a978f; }
+.input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--ring); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.9rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  transition: background-color .2s ease, border-color .2s ease, opacity .2s ease;
+}
+
+/* Primaire: violet feutré mais lisible, sans sur-brillance */
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  border: 1px solid transparent;
+}
+.btn-primary:hover { background: var(--brand-600); }
+.btn-primary:disabled { opacity: .6; }
+
+/* Secondaire: outline classique noir/gris chaud */
+.btn-outline {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover { background: var(--surface-2); }
+
+/* Neutre: pour contrôles utilitaires */
+.btn-neutral {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-neutral:hover { background: #f3f0ec; }
+
+/* Cartes: bordure fine, peu d’ombre (classique) */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
 }

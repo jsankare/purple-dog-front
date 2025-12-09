@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const images = [
-  { src: "/objects/obj1.jpg", alt: "Objet 1" },
+  { src: "/objects/montres.jpg", alt: "Objet 1" },
   { src: "/objects/obj2.jpg", alt: "Objet 2" },
   { src: "/objects/obj3.jpg", alt: "Objet 3" },
   { src: "/objects/obj4.jpg", alt: "Objet 4" },
@@ -22,34 +22,37 @@ const descriptifs = [
 export default function HeroBandeau() {
   const [index, setIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
+
+  const len = images.length;
+  const indexRef = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const touchStartX = useRef<number | null>(null);
+
+  useEffect(() => {
+    indexRef.current = index;
+  }, [index]);
 
   const goTo = (next: number) => {
     if (animating) return;
     setAnimating(true);
-
-    setIndex((prev) => {
-      const len = images.length;
-      return ((next % len) + len) % len;
-    });
-
-    setTimeout(() => setAnimating(false), 450);
+    const n = ((next % len) + len) % len;
+    setIndex(n);
+    window.setTimeout(() => setAnimating(false), 450);
   };
 
-  const next = () => goTo(index + 1);
-  const prev = () => goTo(index - 1);
+  const next = () => goTo(indexRef.current + 1);
+  const prev = () => goTo(indexRef.current - 1);
 
   useEffect(() => {
     startAuto();
     return stopAuto;
-  }, [index]);
+  }, []);
 
   const startAuto = () => {
     stopAuto();
     intervalRef.current = setInterval(() => {
-      setIndex((i) => (i + 1) % images.length);
-    }, 3500);
+      goTo(indexRef.current + 1);
+    }, 4000);
   };
 
   const stopAuto = () => {
@@ -66,117 +69,175 @@ export default function HeroBandeau() {
     touchStartX.current = e.touches[0].clientX;
     stopAuto();
   };
-
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const delta = e.changedTouches[0].clientX - touchStartX.current;
-
     if (Math.abs(delta) > 40) {
       delta > 0 ? prev() : next();
     }
-
     touchStartX.current = null;
     startAuto();
   };
 
   return (
-    <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-center">
-      
-      {/* CARROUSEL */}
+<div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-center">
+      {/* Carrousel (fade) */}
       <div
-        className="relative w-full overflow-hidden rounded-lg border border-(--border) bg-gray-50"
+  className="relative w-full overflow-hidden rounded-app border-subtle surface-2 md:mt-18"
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
+        aria-label="Carrousel d’objets en vedette"
       >
         <div className="relative aspect-video">
-          <div
-            className="absolute inset-0 flex"
-            style={{
-              transform: `translateX(-${index * 100}%)`,
-              transition: animating ? "transform 450ms ease" : "none",
-            }}
-          >
-            {images.map((img, i) => (
-              <div key={i} className="relative aspect-video w-full shrink-0">
-                <Image
-                  src={img.src}
-                  alt={img.alt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className={`object-cover transition-opacity duration-500 ${
-                    i === index ? "opacity-100" : "opacity-80"
-                  }`}
-                  priority={i === index}
-                />
-              </div>
-            ))}
-          </div>
+          {/* Slides superposées */}
+          {images.map((img, i) => (
+            <div
+              key={i}
+              className="absolute inset-0"
+              style={{
+                opacity: i === index ? 1 : 0,
+                transition: "opacity 450ms ease",
+              }}
+            >
+              <Image
+                src={img.src}
+                alt={img.alt}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                priority={i === index}
+              />
+            </div>
+          ))}
 
-          {/* INDICATEURS */}
+          {/* Flèches simples noires */}
+          <button
+            type="button"
+            onClick={prev}
+            aria-label="Image précédente"
+            className="group absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full"
+            style={{ background: "transparent", padding: "6px" }}
+          >
+            <ChevronLeftBlack />
+          </button>
+          <button
+            type="button"
+            onClick={next}
+            aria-label="Image suivante"
+            className="group absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full"
+            style={{ background: "transparent", padding: "6px" }}
+          >
+            <ChevronRightBlack />
+          </button>
+
+          {/* Puces */}
           <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
             {images.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                aria-label={`Aller à l’image ${i + 1}`}
-                className={`h-2.5 w-2.5 rounded-full border transition-colors ${
-                  i === index
-                    ? "bg-(--brand) border-(--brand)"
-                    : "bg-white/80 border-black/20"
-                }`}
+                aria-label={`Aller à l’image \${i + 1}`}
+                className="h-2.5 w-2.5 rounded-full border"
+                style={{
+                  borderColor: "var(--text)",
+                  background: i === index ? "var(--text)" : "transparent",
+                  opacity: i === index ? 0.9 : 0.5,
+                  transition: "opacity .2s ease, background .2s ease",
+                }}
               />
             ))}
           </div>
         </div>
       </div>
 
-      {/* DESCRIPTION */}
+      {/* Descriptif synchronisé avec mise en avant typographique de la ligne active */}
       <div className="space-y-5">
         <div>
-          <h2 className="text-2xl font-semibold">Objets en vedette</h2>
-          <p className="mt-2 text-(--muted)">
-            Découvrez des objets de valeur et leurs résultats de vente passés.
-          </p>
+          <h2 className="h2">Objets en vedette</h2>
+          <p className="mt-2 text-muted">Sélection d’objets et résultats de vente passés.</p>
         </div>
 
-        <div className="rounded-lg border border-(--border) bg-(--surface)">
-          <ul className="divide-y divide-(--border)">
-            {descriptifs.map((d, i) => (
-              <li
-                key={i}
-                className={`flex items-center justify-between px-4 py-3 transition-colors ${
-                  i === index ? "bg-gray-50" : "bg-white"
-                }`}
-              >
-                <div>
-                  <div className="font-medium">{d.title}</div>
-                  <div className="text-sm text-(--muted)">
-                    Estimation: {d.price}
+        <div className="rounded-app border-subtle surface">
+          <ul className="divide-y" style={{ borderColor: "var(--border)" }}>
+            {descriptifs.map((d, i) => {
+              const active = i === index;
+              return (
+                <li
+                  key={i}
+                  className="flex items-center justify-between px-4 py-3 cursor-pointer"
+                  onClick={() => goTo(i)}
+                  style={{
+                    background: active ? "var(--surface-2)" : "var(--surface)",
+                    borderLeft: active ? "3px solid var(--brand)" : "3px solid transparent",
+                    transition: "background-color .25s ease, border-color .25s ease",
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        fontWeight: active ? 700 : 600, 
+                        letterSpacing: active ? "0.1px" : "0px",
+                        transition: "color .25s ease, font-weight .25s ease, letter-spacing .25s ease",
+                      }}
+                    >
+                      {d.title}
+                    </div>
+                    <div
+                      className="text-sm"
+                      style={{
+                        color: "var(--muted)",
+                        transition: "color .25s ease",
+                      }}
+                    >
+                      Estimation: {d.price}
+                    </div>
                   </div>
-                </div>
-                <div className="text-sm font-medium">Résultat: {d.result}</div>
-              </li>
-            ))}
+                  <div
+                    className="text-sm"
+                    style={{
+                      fontWeight: active ? 700 : 600,
+                      color: active ? "" : "var(--text)",
+                      transition: "color .25s ease, font-weight .25s ease",
+                    }}
+                  >
+                    {d.result}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            className="rounded-md border border-(--border) px-3 py-2 text-sm hover:bg-gray-50"
-            onClick={prev}
-          >
-            Précédent
-          </button>
-          <button
-            className="rounded-md bg-(--brand) px-3 py-2 text-sm font-medium text-white hover:bg-(--brand-600)"
-            onClick={next}
-          >
-            Suivant
-          </button>
         </div>
       </div>
     </div>
+  );
+}
+
+/* Chevrons simples noirs */
+function ChevronLeftBlack() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M15 19L8 12L15 5"
+        stroke="#111111"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+function ChevronRightBlack() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M9 5L16 12L9 19"
+        stroke="#111111"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

@@ -1,12 +1,14 @@
+// app/signup/page.tsx
 "use client";
 
 import Link from "next/link";
 import { useState } from "react";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPwd, setShowPwd] = useState(false);
+  const [name, setName] = useState("");
+  const [pwd, setPwd] = useState("");
+  const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -15,80 +17,47 @@ export default function LoginPage() {
     setErr(null);
     setLoading(true);
     try {
-      // TODO: call backend /auth/login
-      await new Promise((r) => setTimeout(r, 800));
-      // TODO: redirect après login
-      alert("Connexion réussie (mock)");
+      // TODO: call API signup
+      // await signup(...)
+      window.location.href = "/";
     } catch (e: any) {
-      setErr(e?.message ?? "Erreur de connexion");
+      setErr(e?.message ?? "Erreur d’inscription");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-white text-gray-900">
-      <div className="mx-auto w-full max-w-md px-4 py-12">
-        <h1 className="text-2xl font-semibold">Se connecter</h1>
-        <p className="mt-2 text-sm text-gray-600">
-          Pas encore de compte ?{" "}
-          <Link href="/signup" className="font-medium underline">
-            S’inscrire
-          </Link>
-        </p>
+    <main className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--bg)", color: "var(--text)" }}>
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center space-y-2">
+          <h1 className="h1">Créer un compte</h1>
+          <p className="text-sm text-muted">Rejoignez Purple Dog pour vendre et suivre vos objets de valeur.</p>
+          <p className="mt-1 text-sm">
+            Déjà un compte ? <Link href="/login" className="link">Se connecter</Link>
+          </p>
+        </div>
 
-        <form onSubmit={onSubmit} className="mt-8 space-y-4">
+        <form onSubmit={onSubmit} className="card space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium">E-mail</label>
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-300"
-              placeholder="votre@email.com"
-            />
+            <label className="block text-sm font-medium">E-mail</label>
+            <input className="input w-full" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="nom@exemple.com" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Mot de passe</label>
+            <input className="input w-full" type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} required placeholder="••••••••" />
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">Mot de passe</label>
-            <div className="flex rounded-md border focus-within:ring-2 focus-within:ring-gray-300">
-              <input
-                type={showPwd ? "text" : "password"}
-                required
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-l-md px-3 py-2 text-sm outline-none"
-                placeholder="********"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPwd((s) => !s)}
-                className="rounded-r-md border-l px-3 text-sm text-gray-600 hover:bg-gray-50"
-                aria-label={showPwd ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-              >
-                {showPwd ? "Masquer" : "Afficher"}
-              </button>
-            </div>
-          </div>
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" className="mt-1" checked={agree} onChange={(e) => setAgree(e.target.checked)} required />
+            <span>J’accepte les <Link href="/mentions-legales" className="link">conditions</Link> et la <Link href="/privacy" className="link">politique de confidentialité</Link>.</span>
+          </label>
 
-          {err && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{err}</div>}
+          {err && <div className="rounded-app border border-red-200 bg-red-50 px-3 py-2 text-sm" style={{ color: "#7f1d1d" }}>{err}</div>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
-          >
-            {loading ? "Connexion..." : "Se connecter"}
+          <button className="btn btn-primary w-full" disabled={loading}>
+            {loading ? "Création..." : "Créer le compte"}
           </button>
-
-          <div className="flex items-center justify-between text-sm">
-            <Link href="#" className="text-gray-600 hover:underline">
-              Mot de passe oublié ?
-            </Link>
-          </div>
         </form>
       </div>
     </main>
