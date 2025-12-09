@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { registerUser, type Gender } from "@/lib/api/auth";
 
 export default function SignupParticulierForm() {
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
-    avatar: null as File | null,
+    gender: "other" as Gender,
     email: "",
     address: "",
     password: "",
@@ -26,41 +27,22 @@ export default function SignupParticulierForm() {
     e.preventDefault();
     setErr(null);
     setOk(null);
-
-    if (!form.ageCertified) {
-      setErr("Vous devez certifier avoir plus de 18 ans.");
-      return;
-    }
-    if (!form.rgpdAccepted) {
-      setErr("Vous devez accepter la politique RGPD.");
-      return;
-    }
-
+    if (!form.ageCertified) return setErr("Vous devez certifier avoir plus de 18 ans.");
+    if (!form.rgpdAccepted) return setErr("Vous devez accepter la politique RGPD.");
     setLoading(true);
     try {
-      // Préparation payload (mock). L’avatar peut être envoyé via FormData plus tard.
-      const payload = {
-        type: "particulier",
+      await registerUser({
+        email: form.email,
+        password: form.password,
         firstName: form.firstName,
         lastName: form.lastName,
-        email: form.email,
-        address: form.address,
-        password: form.password,
-        newsletter: form.newsletter,
-        rgpdAccepted: form.rgpdAccepted,
-        ageCertified: form.ageCertified,
-        publicNamePolicy: "firstName_only", // seul le prénom visible
-      };
-
-      // TODO: POST /auth/signup
-      await new Promise((r) => setTimeout(r, 800));
-
-      // TODO: déclencher l’envoi d’email de validation côté backend
-      setOk("Compte créé. Un e-mail de validation vous a été envoyé.");
+        gender: form.gender,
+      });
+      setOk("Compte créé. Si la vérification email est activée, un e-mail vous a été envoyé.");
       setForm({
         firstName: "",
         lastName: "",
-        avatar: null,
+        gender: "other",
         email: "",
         address: "",
         password: "",
@@ -85,7 +67,7 @@ export default function SignupParticulierForm() {
             required
             value={form.firstName}
             onChange={(e) => update("firstName", e.target.value)}
-            className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-300"
+            className="input w-full"
           />
         </div>
         <div>
@@ -95,19 +77,27 @@ export default function SignupParticulierForm() {
             required
             value={form.lastName}
             onChange={(e) => update("lastName", e.target.value)}
-            className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-300"
+            className="input w-full"
           />
         </div>
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">Photo de profil</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => update("avatar", e.target.files?.[0] ?? null)}
-          className="w-full text-sm"
-        />
+        <label className="mb-1 block text-sm font-medium">Genre</label>
+        <div className="flex gap-4 text-sm">
+          {(["male", "female", "other"] as Gender[]).map((g) => (
+            <label key={g} className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="gender"
+                value={g}
+                checked={form.gender === g}
+                onChange={(e) => update("gender", e.target.value as Gender)}
+              />
+              <span>{g === "male" ? "Homme" : g === "female" ? "Femme" : "Autre"}</span>
+            </label>
+          ))}
+        </div>
       </div>
 
       <div>
@@ -117,19 +107,17 @@ export default function SignupParticulierForm() {
           required
           value={form.email}
           onChange={(e) => update("email", e.target.value)}
-          className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-300"
+          className="input w-full"
         />
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">Adresse postale</label>
+        <label className="mb-1 block text-sm font-medium">Adresse postale (non stockée pour l’instant)</label>
         <input
           type="text"
-          required
           value={form.address}
           onChange={(e) => update("address", e.target.value)}
-          className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-300"
-          placeholder="N°, Rue, Code postal, Ville, Pays"
+          className="input w-full"
         />
       </div>
 
@@ -141,8 +129,7 @@ export default function SignupParticulierForm() {
           minLength={8}
           value={form.password}
           onChange={(e) => update("password", e.target.value)}
-          className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-300"
-          placeholder="Au moins 8 caractères"
+          className="input w-full"
         />
       </div>
 
@@ -154,9 +141,7 @@ export default function SignupParticulierForm() {
           onChange={(e) => update("ageCertified", e.target.checked)}
           className="h-4 w-4"
         />
-        <label htmlFor="age" className="text-sm">
-          Je certifie avoir plus de 18 ans
-        </label>
+        <label htmlFor="age" className="text-sm">Je certifie avoir plus de 18 ans</label>
       </div>
 
       <div className="flex items-center gap-2">
@@ -167,7 +152,7 @@ export default function SignupParticulierForm() {
           onChange={(e) => update("newsletter", e.target.checked)}
           className="h-4 w-4"
         />
-        <label htmlFor="newsletter" className="text-sm">Inscription à la Newsletter</label>
+        <label htmlFor="newsletter" className="text-sm">Inscription à la Newsletter (non stockée pour l’instant)</label>
       </div>
 
       <div className="flex items-center gap-2">
@@ -179,23 +164,13 @@ export default function SignupParticulierForm() {
           className="h-4 w-4"
           required
         />
-        <label htmlFor="rgpd" className="text-sm">
-          J’accepte la politique RGPD
-        </label>
+        <label htmlFor="rgpd" className="text-sm">J’accepte la politique RGPD</label>
       </div>
 
-      <p className="text-sm text-gray-600">
-        Confidentialité: Les professionnels ne pourront pas connaître votre identité. Seul votre prénom sera visible.
-      </p>
+      {err && <div className="rounded-app border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{err}</div>}
+      {ok && <div className="rounded-app border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">{ok}</div>}
 
-      {err && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{err}</div>}
-      {ok && <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">{ok}</div>}
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
-      >
+      <button type="submit" disabled={loading} className="btn btn-primary w-full">
         {loading ? "Création du compte..." : "Créer mon compte"}
       </button>
     </form>
