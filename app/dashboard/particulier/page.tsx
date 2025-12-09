@@ -12,7 +12,7 @@ interface SaleItem {
   type: string;
   status: string;
   offers?: number;
-  icon: string;
+  image: string;
 }
 
 export default function DashboardParticulier() {
@@ -32,7 +32,7 @@ export default function DashboardParticulier() {
       type: 'Enchère',
       status: 'En cours',
       offers: 3,
-      icon: '💎'
+      image: 'https://images.unsplash.com/photo-1662384205880-2c7a9879cc0c?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
     },
     {
       id: '2',
@@ -41,7 +41,7 @@ export default function DashboardParticulier() {
       type: 'Vente directe',
       status: 'En cours',
       offers: 1,
-      icon: '💍'
+      image: 'https://media.istockphoto.com/id/121119171/fr/photo/antique-diamond-bague.webp?a=1&b=1&s=612x612&w=0&k=20&c=JHrjjY2DcPMsx0b4SHDPYwNn0k3omhnGq0SY2W0eNas='
     },
     {
       id: '3',
@@ -49,7 +49,7 @@ export default function DashboardParticulier() {
       price: 1500,
       type: 'Enchère',
       status: 'En attente',
-      icon: '🖼️'
+      image: 'https://images.unsplash.com/photo-1515405295579-ba7b45403062?w=400&h=400&fit=crop'
     }
   ]);
 
@@ -69,7 +69,7 @@ export default function DashboardParticulier() {
           type: item.saleType,
           status: item.status,
           offers: item.offers || 0,
-          icon: item.icon || '📦'
+          image: item.image || 'https://images.unsplash.com/photo-1611312449412-6cefac5dc3e4?w=400&h=400&fit=crop'
         }));
         setSaleItems(formattedItems);
       }
@@ -110,7 +110,7 @@ export default function DashboardParticulier() {
         price: saleData.price,
         type: saleData.saleType,
         status: 'En attente',
-        icon: '📦'
+        image: 'https://images.unsplash.com/photo-1611312449412-6cefac5dc3e4?w=400&h=400&fit=crop'
       };
       
       setSaleItems([newItem, ...saleItems]);
@@ -296,8 +296,14 @@ export default function DashboardParticulier() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {saleItems.map((item) => (
                 <div key={item.id} className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all">
-                  <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
-                    <span className="text-6xl">{item.icon}</span>
+                  <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden mb-4 relative">
+                    <Image 
+                      src={item.image} 
+                      alt={item.title}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
                   </div>
                   <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{item.title}</h3>
                   <div className="flex items-center gap-2 mb-3">
@@ -318,7 +324,7 @@ export default function DashboardParticulier() {
                   {item.offers && item.offers > 0 && (
                     <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                       <p className="text-sm text-blue-700 font-medium">
-                        🎯 {item.offers} offre{item.offers > 1 ? 's' : ''} reçue{item.offers > 1 ? 's' : ''}
+                        {item.offers} offre{item.offers > 1 ? 's' : ''} reçue{item.offers > 1 ? 's' : ''}
                       </p>
                     </div>
                   )}
@@ -428,8 +434,14 @@ export default function DashboardParticulier() {
                   {saleItems.slice(0, 5).map((item) => (
                     <div key={item.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                       <div className="flex gap-4">
-                        <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
-                          <span className="text-3xl">{item.icon}</span>
+                        <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden relative">
+                          <Image 
+                            src={item.image} 
+                            alt={item.title}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
                         </div>
                         <div className="flex-1">
                           <h3 className="font-bold text-lg text-gray-900">{item.title}</h3>
