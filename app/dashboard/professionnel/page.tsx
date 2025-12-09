@@ -12,7 +12,7 @@ interface ObjectItem {
   status: string;
   currentBid?: number;
   timeLeft?: string;
-  icon: string;
+  image: string;
 }
 
 export default function DashboardProfessionnel() {
@@ -37,7 +37,7 @@ export default function DashboardProfessionnel() {
       status: 'En vente',
       currentBid: 245000,
       timeLeft: '3j 5h',
-      icon: '🎨'
+      image: 'https://images.unsplash.com/photo-1515405295579-ba7b45403062?w=400&h=400&fit=crop'
     },
     {
       id: '2',
@@ -45,7 +45,7 @@ export default function DashboardProfessionnel() {
       price: 180000,
       type: 'Vente rapide',
       status: 'En vente',
-      icon: '⌚'
+      image: 'https://images.unsplash.com/photo-1663564304546-38addf4a4358?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
     },
     {
       id: '3',
@@ -55,7 +55,7 @@ export default function DashboardProfessionnel() {
       status: 'En vente',
       currentBid: 42000,
       timeLeft: '1j 12h',
-      icon: '🗿'
+      image: 'https://images.unsplash.com/photo-1753550577216-a572d3ebd5c1?q=80&w=984&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
     },
     {
       id: '4',
@@ -63,7 +63,7 @@ export default function DashboardProfessionnel() {
       price: 95000,
       type: 'Vente rapide',
       status: 'En vente',
-      icon: '💎'
+      image: 'https://images.unsplash.com/photo-1743264385411-57c883bdc0ea?q=80&w=1096&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
     },
     {
       id: '5',
@@ -73,7 +73,7 @@ export default function DashboardProfessionnel() {
       status: 'En vente',
       currentBid: 310000,
       timeLeft: '5h 23m',
-      icon: '🏺'
+      image: 'https://images.unsplash.com/photo-1723110871916-3d29bc999703?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
     },
   ]);
 
@@ -315,8 +315,14 @@ export default function DashboardProfessionnel() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {availableObjects.map((item) => (
               <div key={item.id} className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all">
-                <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
-                  <span className="text-6xl">{item.icon}</span>
+                <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden mb-4 relative">
+                  <Image 
+                    src={item.image} 
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
                 </div>
                 
                 <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{item.title}</h3>
@@ -613,8 +619,14 @@ export default function DashboardProfessionnel() {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {availableObjects.slice(0, 3).map((item) => (
                   <div key={item.id} className="border rounded-lg p-4">
-                    <div className="w-full h-32 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-3">
-                      <span className="text-4xl">{item.icon}</span>
+                    <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden mb-3 relative">
+                      <Image 
+                        src={item.image} 
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
                     </div>
                     <h3 className="font-bold text-gray-900 line-clamp-2 mb-2">{item.title}</h3>
                     <p className="text-sm font-bold" style={{ color: '#4A3866' }}>{item.price.toLocaleString()} €</p>
