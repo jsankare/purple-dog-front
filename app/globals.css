@@ -1,26 +1,17 @@
 @import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+--brand: #4B2376;     /* Violet logo */
+--brand-600: #5a2c8f;
+--brand-700: #431c6e;
+--brand-800: #361458;
+--bg: #ffffff;
+--surface: #ffffff;
+--muted: #6b7280;     /* gray-500 /
+--border: #e5e7eb;    / gray-200 */
 }
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+html, body {
+background: var(--bg);
+color: #111827;       /* gray-900 */
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
 }
