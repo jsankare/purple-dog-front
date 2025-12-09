@@ -2,6 +2,7 @@ import HeroBandeau from "@/app/components/marketing/HeroBandeau";
 import CategoriesGrid from "@/app/components/marketing/CategoriesGrid";
 import Presentation from "@/app/components/marketing/Presentation";
 import Newsletter from "@/app/components/marketing/Newsletter";
+import Image from "next/image"; 
 
 export default function Home() {
   return (
