@@ -78,6 +78,77 @@ export const profileAPI = {
   },
 };
 
+export const authAPI = {
+  login: async (email: string, password: string) => {
+    const response = await apiCall('/api/users/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    
+    if (response.token && typeof window !== 'undefined') {
+      localStorage.setItem('token', response.token);
+    }
+    
+    return response;
+  },
+
+  register: async (userData: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    role?: string;
+    address: {
+      street: string;
+      city: string;
+      postalCode: string;
+      country: string;
+    };
+    isOver18?: boolean;
+    acceptedGDPR: boolean;
+    newsletterSubscription?: boolean;
+    companyName?: string;
+    siret?: string;
+    website?: string;
+    acceptedTerms?: boolean;
+    acceptedMandate?: boolean;
+  }) => {
+    const response = await fetch(`${API_BASE_URL}/api/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.errors?.[0]?.message || data.error || 'Erreur lors de l\'inscription');
+    }
+
+    if (data.token && typeof window !== 'undefined') {
+      localStorage.setItem('token', data.token);
+    }
+
+    return data;
+  },
+
+  logout: async () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+    }
+    return apiCall('/api/users/logout', {
+      method: 'POST',
+    });
+  },
+
+  me: async () => {
+    return apiCall('/api/users/me');
+  },
+};
+
 export const usersAPI = {
   checkLogin: async () => {
     return apiCall('/api/users/login-check');

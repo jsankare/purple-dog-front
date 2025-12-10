@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   UserCircle, 
@@ -13,7 +14,7 @@ import {
   Settings,
   LogOut
 } from 'lucide-react';
-import { profileAPI } from '@/lib/api';
+import { profileAPI, authAPI } from '@/lib/api';
 
 interface UserProfile {
   name: string;
@@ -29,9 +30,26 @@ interface UserProfile {
 }
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout();
+      // Supprimer le cookie manuellement
+      document.cookie = 'payload-token=; Max-Age=0; path=/;';
+      // Rediriger vers la page de connexion
+      router.push('/login');
+    } catch (err) {
+      console.error('Erreur lors de la déconnexion:', err);
+      // Même en cas d'erreur, supprimer le token et rediriger
+      document.cookie = 'payload-token=; Max-Age=0; path=/;';
+      localStorage.removeItem('token');
+      router.push('/login');
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -227,7 +245,10 @@ export default function ProfilePage() {
             </div>
 
             <div className="bg-white rounded-lg shadow-sm border border-neutral-200/50 p-8">
-              <button className="flex items-center gap-3 px-6 py-3 text-neutral-600 hover:text-[#4B2377] hover:bg-purple-50 rounded-lg transition-colors border border-neutral-200 hover:border-[#4B2377]/30">
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-3 px-6 py-3 text-neutral-600 hover:text-[#4B2377] hover:bg-purple-50 rounded-lg transition-colors border border-neutral-200 hover:border-[#4B2377]/30"
+              >
                 <LogOut className="w-5 h-5" />
                 Se déconnecter
               </button>
