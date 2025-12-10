@@ -16,6 +16,9 @@ export default function EditProfilePage() {
     companyName: '',
     siret: '',
     website: '',
+    iban: '',
+    bic: '',
+    accountHolder: '',
   });
 
   const [loading, setLoading] = useState(true);
@@ -41,6 +44,9 @@ export default function EditProfilePage() {
           companyName: user.companyName || '',
           siret: user.siret || '',
           website: user.website || '',
+          iban: user.bankDetails?.iban || '',
+          bic: user.bankDetails?.bic || '',
+          accountHolder: user.bankDetails?.accountHolderName || '',
         });
         setUserRole(user.role);
       } catch (err: any) {
@@ -72,6 +78,12 @@ export default function EditProfilePage() {
         postalCode: formData.postalCode,
         country: formData.country,
       };
+
+      const bankInfo = {
+        iban: formData.iban,
+        bic: formData.bic,
+        accountHolder: formData.accountHolder,
+      };
       
       await profileAPI.updateProfile({
         firstName: formData.firstName,
@@ -80,6 +92,7 @@ export default function EditProfilePage() {
         companyName: formData.companyName,
         siret: formData.siret,
         website: formData.website,
+        bankInfo,
       });
       setMessage({ type: 'success', text: 'Profil mis à jour avec succès' });
     } catch (err: any) {
@@ -282,6 +295,60 @@ export default function EditProfilePage() {
                   </div>
                 </>
               )}
+
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-neutral-900 uppercase tracking-wider">Informations bancaires</h3>
+                
+                <div>
+                  <label htmlFor="accountHolder" className="block text-sm font-medium text-neutral-700 mb-1">
+                    Titulaire du compte
+                  </label>
+                  <input
+                    type="text"
+                    id="accountHolder"
+                    name="accountHolder"
+                    value={formData.accountHolder}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm"
+                    placeholder="Prénom Nom"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="iban" className="block text-sm font-medium text-neutral-700 mb-1">
+                    IBAN
+                  </label>
+                  <input
+                    type="text"
+                    id="iban"
+                    name="iban"
+                    value={formData.iban}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm font-mono"
+                    placeholder="FR76 1234 5678 9012 3456 7890 123"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="bic" className="block text-sm font-medium text-neutral-700 mb-1">
+                    BIC / SWIFT
+                  </label>
+                  <input
+                    type="text"
+                    id="bic"
+                    name="bic"
+                    value={formData.bic}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm font-mono"
+                    placeholder="BNPAFRPPXXX"
+                  />
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800">
+                  <p className="font-medium mb-1">🔒 Sécurité</p>
+                  <p>Vos informations bancaires sont cryptées et sécurisées. Elles ne seront utilisées que pour les transactions liées à votre compte.</p>
+                </div>
+              </div>
 
               <div className="flex justify-end pt-6 border-t border-neutral-200">
                 <button
