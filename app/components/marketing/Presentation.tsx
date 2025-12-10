@@ -18,8 +18,8 @@ export default function Presentation() {
 
         <div className="mb-12 text-center">
           <p className="text-lg text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            Purple Dog révolutionne la vente d'objets de collection en connectant vendeurs et acheteurs 
-            de confiance. Notre plateforme garantit transparence, sécurité et valorisation optimale de 
+            Purple Dog révolutionne la vente d'objets de collection en connectant vendeurs et acheteurs
+            de confiance. Notre plateforme garantit transparence, sécurité et valorisation optimale de
             vos biens précieux.
           </p>
         </div>

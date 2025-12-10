@@ -16,6 +16,9 @@ export default function EditProfilePage() {
     companyName: '',
     siret: '',
     website: '',
+    iban: '',
+    bic: '',
+    accountHolder: '',
   });
 
   const [loading, setLoading] = useState(true);
@@ -41,6 +44,9 @@ export default function EditProfilePage() {
           companyName: user.companyName || '',
           siret: user.siret || '',
           website: user.website || '',
+          iban: user.bankDetails?.iban || '',
+          bic: user.bankDetails?.bic || '',
+          accountHolder: user.bankDetails?.accountHolderName || '',
         });
         setUserRole(user.role);
       } catch (err: any) {
@@ -72,7 +78,13 @@ export default function EditProfilePage() {
         postalCode: formData.postalCode,
         country: formData.country,
       };
-      
+
+      const bankInfo = {
+        iban: formData.iban,
+        bic: formData.bic,
+        accountHolder: formData.accountHolder,
+      };
+
       await profileAPI.updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -80,6 +92,7 @@ export default function EditProfilePage() {
         companyName: formData.companyName,
         siret: formData.siret,
         website: formData.website,
+        bankInfo,
       });
       setMessage({ type: 'success', text: 'Profil mis à jour avec succès' });
     } catch (err: any) {
@@ -102,8 +115,8 @@ export default function EditProfilePage() {
       <div className="max-w-4xl mx-auto">
         {/* Breadcrumb */}
         <div className="mb-8">
-          <Link 
-            href="/profile" 
+          <Link
+            href="/profile"
             className="inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -141,7 +154,7 @@ export default function EditProfilePage() {
                   Informations personnelles
                 </h2>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-2">
@@ -183,7 +196,7 @@ export default function EditProfilePage() {
                   Adresse
                 </h2>
               </div>
-              
+
               <div className="space-y-6">
                 <div>
                   <label htmlFor="street" className="block text-sm font-medium text-neutral-700 mb-2">
@@ -258,7 +271,7 @@ export default function EditProfilePage() {
                     Informations professionnelles
                   </h2>
                 </div>
-                
+
                 <div className="space-y-6">
                   <div>
                     <label htmlFor="companyName" className="block text-sm font-medium text-neutral-700 mb-2">
@@ -308,6 +321,7 @@ export default function EditProfilePage() {
                   </div>
                 </div>
               </div>
+
             )}
 
             {/* Actions */}

@@ -1,53 +1,53 @@
 import Link from "next/link";
 
 const categories = [
-  { 
-    name: "Art & Peinture", 
+  {
+    name: "Art & Peinture",
     count: "342 objets",
     image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400&h=400&fit=crop"
   },
-  { 
-    name: "Horlogerie", 
+  {
+    name: "Horlogerie",
     count: "198 objets",
     image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&h=400&fit=crop"
   },
-  { 
-    name: "Mobilier", 
+  {
+    name: "Mobilier",
     count: "156 objets",
     image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=400&fit=crop"
   },
-  { 
-    name: "Livres anciens", 
+  {
+    name: "Livres anciens",
     count: "284 objets",
     image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=400&fit=crop"
   },
-  { 
-    name: "Vins & Spiritueux", 
+  {
+    name: "Vins & Spiritueux",
     count: "127 objets",
     image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=400&fit=crop"
   },
-  { 
-    name: "Photographie", 
+  {
+    name: "Photographie",
     count: "89 objets",
     image: "https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?w=400&h=400&fit=crop"
   },
-  { 
-    name: "Bijoux", 
+  {
+    name: "Bijoux",
     count: "215 objets",
     image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop"
   },
-  { 
-    name: "Instruments", 
+  {
+    name: "Instruments",
     count: "67 objets",
     image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&h=400&fit=crop"
   },
-  { 
-    name: "Mode & Accessoires", 
+  {
+    name: "Mode & Accessoires",
     count: "178 objets",
     image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=400&fit=crop"
   },
-  { 
-    name: "Collection", 
+  {
+    name: "Collection",
     count: "234 objets",
     image: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=400&h=400&fit=crop"
   },

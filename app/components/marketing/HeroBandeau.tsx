@@ -76,7 +76,7 @@ export default function HeroBandeau() {
             alt={currentObject.title}
             className="w-full h-full object-cover"
           />
-          
+
           <div className="absolute inset-0 flex items-center justify-between p-4">
             <button
               onClick={goToPrevious}

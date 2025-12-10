@@ -16,7 +16,7 @@ export default function Newsletter() {
     try {
       // Simuler l'appel API
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // TODO: Remplacer par vrai appel API
       // const response = await fetch('/api/newsletter', {
       //   method: 'POST',
@@ -26,7 +26,7 @@ export default function Newsletter() {
 
       setSuccess(true);
       setEmail("");
-      
+
       setTimeout(() => {
         setSuccess(false);
       }, 3000);
@@ -43,12 +43,12 @@ export default function Newsletter() {
         <div className="w-16 h-16 border-2 border-white rounded-full flex items-center justify-center mx-auto mb-6">
           <Mail className="w-8 h-8" />
         </div>
-        
+
         <h2 className="text-3xl lg:text-4xl font-serif mb-4">
           Restez informé
         </h2>
         <p className="text-lg text-purple-100 mb-8 leading-relaxed">
-          Inscrivez-vous à notre newsletter et recevez en exclusivité les dernières enchères, 
+          Inscrivez-vous à notre newsletter et recevez en exclusivité les dernières enchères,
           actualités du marché et conseils d'experts
         </p>
 
@@ -88,15 +88,15 @@ export default function Newsletter() {
                 )}
               </button>
             </div>
-            
+
             {error && (
               <p className="mt-4 text-sm text-red-200">
                 {error}
               </p>
             )}
-            
+
             <p className="mt-4 text-sm text-purple-200">
-              En vous inscrivant, vous acceptez de recevoir nos emails marketing. 
+              En vous inscrivant, vous acceptez de recevoir nos emails marketing.
               Désinscription possible à tout moment.
             </p>
           </form>

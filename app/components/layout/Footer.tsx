@@ -21,39 +21,39 @@ export default function Footer() {
               LA plateforme pour vendre mieux vos objets de valeur à des tiers de confiance.
             </p>
             <div className="flex gap-3">
-              <a 
-                href="https://instagram.com/purpledog" 
-                target="_blank" 
+              <a
+                href="https://instagram.com/purpledog"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 border border-neutral-300 hover:border-[#4B2377] flex items-center justify-center transition-colors group"
                 aria-label="Instagram"
               >
                 <Instagram className="w-4 h-4 text-neutral-600 group-hover:text-[#4B2377] transition-colors" />
               </a>
-              
-              <a 
-                href="https://facebook.com/purpledog" 
-                target="_blank" 
+
+              <a
+                href="https://facebook.com/purpledog"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 border border-neutral-300 hover:border-[#4B2377] flex items-center justify-center transition-colors group"
                 aria-label="Facebook"
               >
                 <Facebook className="w-4 h-4 text-neutral-600 group-hover:text-[#4B2377] transition-colors" />
               </a>
-              
-              <a 
-                href="https://linkedin.com/company/purpledog" 
-                target="_blank" 
+
+              <a
+                href="https://linkedin.com/company/purpledog"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 border border-neutral-300 hover:border-[#4B2377] flex items-center justify-center transition-colors group"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="w-4 h-4 text-neutral-600 group-hover:text-[#4B2377] transition-colors" />
               </a>
-              
-              <a 
-                href="https://tiktok.com/@purpledog" 
-                target="_blank" 
+
+              <a
+                href="https://tiktok.com/@purpledog"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 border border-neutral-300 hover:border-[#4B2377] flex items-center justify-center transition-colors group"
                 aria-label="TikTok"
@@ -62,10 +62,10 @@ export default function Footer() {
                   <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/>
                 </svg>
               </a>
-              
-              <a 
-                href="https://pinterest.com/purpledog" 
-                target="_blank" 
+
+              <a
+                href="https://pinterest.com/purpledog"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 border border-neutral-300 hover:border-[#4B2377] flex items-center justify-center transition-colors group"
                 aria-label="Pinterest"
@@ -83,32 +83,32 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link 
-                  href="/qui-sommes-nous" 
+                <Link
+                  href="/qui-sommes-nous"
                   className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
                 >
                   Qui sommes-nous ?
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/comment-ca-marche" 
+                <Link
+                  href="/comment-ca-marche"
                   className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
                 >
                   Comment ça marche
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/nos-experts" 
+                <Link
+                  href="/nos-experts"
                   className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
                 >
                   Nos experts
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/temoignages" 
+                <Link
+                  href="/temoignages"
                   className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
                 >
                   Témoignages
@@ -123,32 +123,32 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link 
-                  href="/encheres" 
+                <Link
+                  href="/encheres"
                   className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
                 >
                   Enchères en cours
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/vendre" 
+                <Link
+                  href="/vendre"
                   className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
                 >
                   Vendre un objet
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/faq" 
+                <Link
+                  href="/faq"
                   className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
                 >
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/blog" 
+                <Link
+                  href="/blog"
                   className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
                 >
                   Blog
@@ -164,8 +164,8 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start gap-2">
                 <Mail className="w-4 h-4 text-[#4B2377] mt-0.5 flex-shrink-0" />
-                <a 
-                  href="mailto:contact@purpledog.fr" 
+                <a
+                  href="mailto:contact@purpledog.fr"
                   className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
                 >
                   contact@purpledog.fr
@@ -173,8 +173,8 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-2">
                 <Phone className="w-4 h-4 text-[#4B2377] mt-0.5 flex-shrink-0" />
-                <a 
-                  href="tel:+33123456789" 
+                <a
+                  href="tel:+33123456789"
                   className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
                 >
                   +33 1 23 45 67 89
@@ -197,20 +197,20 @@ export default function Footer() {
               © {currentYear} Purple Dog. Tous droits réservés.
             </p>
             <nav className="flex items-center gap-6">
-              <Link 
-                href="/mentions-legales" 
+              <Link
+                href="/mentions-legales"
                 className="text-sm text-neutral-500 hover:text-[#4B2377] transition-colors"
               >
                 Mentions légales
               </Link>
-              <Link 
-                href="/politique-confidentialite" 
+              <Link
+                href="/politique-confidentialite"
                 className="text-sm text-neutral-500 hover:text-[#4B2377] transition-colors"
               >
                 Confidentialité
               </Link>
-              <Link 
-                href="/cgv" 
+              <Link
+                href="/cgv"
                 className="text-sm text-neutral-500 hover:text-[#4B2377] transition-colors"
               >
                 CGV
