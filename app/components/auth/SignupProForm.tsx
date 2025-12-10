@@ -1,320 +1,419 @@
 "use client";
 
 import { useState } from "react";
-import { registerUser, type Gender } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
+import { authAPI } from "@/lib/api";
+import { Mail, Lock, User, MapPin, Home, Building2, FileText, Globe, ArrowRight, ArrowLeft, Check } from "lucide-react";
 
 export default function SignupProForm() {
+  const router = useRouter();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
-    gender: "other" as Gender,
     email: "",
+    password: "",
+    passwordConfirm: "",
     companyName: "",
     siret: "",
-    address: "",
-    password: "",
+    street: "",
+    city: "",
+    postalCode: "",
+    country: "France",
     website: "",
-    specialties: "",
-    wantedObjects: "",
-    socialLinks: "",
     cgvAccepted: false,
     mandateAccepted: false,
     newsletter: false,
     rgpdAccepted: false,
-    officialDoc: null as File | null,
   });
 
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [ok, setOk] = useState<string | null>(null);
+  const [step, setStep] = useState(1);
 
   function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
+  function nextStep() {
+    setErr(null);
+    if (step === 1) {
+      if (!form.firstName || !form.lastName || !form.email || !form.password || !form.passwordConfirm) {
+        return setErr("Veuillez remplir tous les champs obligatoires");
+      }
+      if (form.password !== form.passwordConfirm) {
+        return setErr("Les mots de passe ne correspondent pas");
+      }
+      if (form.password.length < 8) {
+        return setErr("Le mot de passe doit contenir au moins 8 caractères");
+      }
+    } else if (step === 2) {
+      if (!form.companyName || !form.siret || !form.street || !form.city || !form.postalCode) {
+        return setErr("Veuillez remplir tous les champs professionnels obligatoires");
+      }
+    }
+    setStep(step + 1);
+  }
+
+  function prevStep() {
+    setErr(null);
+    setStep(step - 1);
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
-    setOk(null);
 
-    if (!form.rgpdAccepted || !form.cgvAccepted || !form.mandateAccepted) {
-      return setErr("Veuillez accepter RGPD, CGV et le mandat.");
+    if (!form.cgvAccepted) {
+      return setErr("Vous devez accepter les CGV.");
+    }
+    if (!form.mandateAccepted) {
+      return setErr("Vous devez accepter le mandat.");
+    }
+    if (!form.rgpdAccepted) {
+      return setErr("Vous devez accepter la politique RGPD.");
     }
 
     setLoading(true);
     try {
-      // Inscription de base (infos pro complétées plus tard)
-      await registerUser({
+      await authAPI.register({
         email: form.email,
         password: form.password,
         firstName: form.firstName,
         lastName: form.lastName,
-        gender: form.gender,
+        role: "professionnel",
+        address: {
+          street: form.street,
+          city: form.city,
+          postalCode: form.postalCode,
+          country: form.country,
+        },
+        companyName: form.companyName,
+        siret: form.siret,
+        website: form.website || undefined,
+        acceptedTerms: form.cgvAccepted,
+        acceptedMandate: form.mandateAccepted,
+        acceptedGDPR: form.rgpdAccepted,
+        newsletterSubscription: form.newsletter,
       });
 
-      setOk("Compte pro créé. Les informations professionnelles seront complétées ultérieurement.");
-      setForm({
-        firstName: "",
-        lastName: "",
-        gender: "other",
-        email: "",
-        companyName: "",
-        siret: "",
-        address: "",
-        password: "",
-        website: "",
-        specialties: "",
-        wantedObjects: "",
-        socialLinks: "",
-        cgvAccepted: false,
-        mandateAccepted: false,
-        newsletter: false,
-        rgpdAccepted: false,
-        officialDoc: null,
-      });
+      window.dispatchEvent(new Event('auth-change'));
+      router.push('/profile');
     } catch (e: any) {
-      setErr(e?.message ?? "Erreur lors de l’inscription");
+      setErr(e?.message ?? "Erreur lors de l'inscription");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      {/* Identité */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-sm font-medium">Prénom</label>
-          <input
-            type="text"
-            required
-            value={form.firstName}
-            onChange={(e) => update("firstName", e.target.value)}
-            className="input w-full"
-          />
+    <div className="space-y-6">
+      <div className="flex items-center justify-center gap-2">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${step >= 1 ? 'bg-[#4B2377] text-white' : 'bg-neutral-200 text-neutral-500'}`}>
+          1
         </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium">Nom</label>
-          <input
-            type="text"
-            required
-            value={form.lastName}
-            onChange={(e) => update("lastName", e.target.value)}
-            className="input w-full"
-          />
+        <div className={`h-1 w-16 ${step >= 2 ? 'bg-[#4B2377]' : 'bg-neutral-200'}`}></div>
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${step >= 2 ? 'bg-[#4B2377] text-white' : 'bg-neutral-200 text-neutral-500'}`}>
+          2
         </div>
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium">Genre</label>
-        <div className="flex gap-4 text-sm">
-          {(["male", "female", "other"] as Gender[]).map((g) => (
-            <label key={g} className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="gender"
-                value={g}
-                checked={form.gender === g}
-                onChange={(e) => update("gender", e.target.value as Gender)}
-              />
-              <span>{g === "male" ? "Homme" : g === "female" ? "Femme" : "Autre"}</span>
-            </label>
-          ))}
+        <div className={`h-1 w-16 ${step >= 3 ? 'bg-[#4B2377]' : 'bg-neutral-200'}`}></div>
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${step >= 3 ? 'bg-[#4B2377] text-white' : 'bg-neutral-200 text-neutral-500'}`}>
+          3
         </div>
-      </div>
-
-      {/* Coordonnées de connexion */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-sm font-medium">E-mail</label>
-          <input
-            type="email"
-            required
-            value={form.email}
-            onChange={(e) => update("email", e.target.value)}
-            className="input w-full"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium">Mot de passe</label>
-          <input
-            type="password"
-            required
-            minLength={8}
-            value={form.password}
-            onChange={(e) => update("password", e.target.value)}
-            className="input w-full"
-          />
-        </div>
-      </div>
-
-      {/* Informations professionnelles */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-sm font-medium">Raison sociale</label>
-          <input
-            type="text"
-            value={form.companyName}
-            onChange={(e) => update("companyName", e.target.value)}
-            className="input w-full"
-            placeholder="Nom de l’entreprise"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium">SIRET</label>
-          <input
-            type="text"
-            value={form.siret}
-            onChange={(e) => update("siret", e.target.value)}
-            className="input w-full"
-            placeholder="123 456 789 00012"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium">Adresse professionnelle</label>
-        <input
-          type="text"
-          value={form.address}
-          onChange={(e) => update("address", e.target.value)}
-          className="input w-full"
-          placeholder="Adresse complète"
-        />
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-sm font-medium">Site web</label>
-          <input
-            type="url"
-            value={form.website}
-            onChange={(e) => update("website", e.target.value)}
-            className="input w-full"
-            placeholder="https://..."
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium">Réseaux sociaux</label>
-          <input
-            type="text"
-            value={form.socialLinks}
-            onChange={(e) => update("socialLinks", e.target.value)}
-            className="input w-full"
-            placeholder="Instagram, LinkedIn, etc."
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-sm font-medium">Spécialités</label>
-          <input
-            type="text"
-            value={form.specialties}
-            onChange={(e) => update("specialties", e.target.value)}
-            className="input w-full"
-            placeholder="Montres, bijoux, art, ..."
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium">Objets recherchés</label>
-          <input
-            type="text"
-            value={form.wantedObjects}
-            onChange={(e) => update("wantedObjects", e.target.value)}
-            className="input w-full"
-            placeholder="Marques, périodes, styles..."
-          />
-        </div>
-      </div>
-
-      {/* Pièce officielle */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">Document officiel (Kbis, pièce d’identité, etc.)</label>
-        <input
-          type="file"
-          accept=".pdf,.jpg,.jpeg,.png"
-          onChange={(e) => update("officialDoc", e.currentTarget.files?.[0] ?? null)}
-          className="block w-full text-sm file:mr-3 file:rounded file:border-0 file:bg-(--surface-2) file:px-3 file:py-2 file:text-sm file:text-(--text)"
-        />
-        {form.officialDoc && (
-          <p className="mt-1 text-xs text-muted">
-            Fichier sélectionné: {form.officialDoc.name}
-          </p>
-        )}
-      </div>
-
-      {/* Consentements */}
-      <div className="space-y-3">
-        <label className="flex items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={form.cgvAccepted}
-            onChange={(e) => update("cgvAccepted", e.target.checked)}
-            className="mt-0.5 h-4 w-4"
-            required
-          />
-          <span>
-            J’accepte les CGV.
-          </span>
-        </label>
-
-        <label className="flex items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={form.mandateAccepted}
-            onChange={(e) => update("mandateAccepted", e.target.checked)}
-            className="mt-0.5 h-4 w-4"
-            required
-          />
-          <span>
-            J’accepte le mandat (mandat de vente/mandat de courtage).
-          </span>
-        </label>
-
-        <label className="flex items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={form.rgpdAccepted}
-            onChange={(e) => update("rgpdAccepted", e.target.checked)}
-            className="mt-0.5 h-4 w-4"
-            required
-          />
-          <span>
-            J’accepte la politique RGPD.
-          </span>
-        </label>
-
-        <label className="flex items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={form.newsletter}
-            onChange={(e) => update("newsletter", e.target.checked)}
-            className="mt-0.5 h-4 w-4"
-          />
-          <span>Recevoir la newsletter (optionnel)</span>
-        </label>
       </div>
 
       {err && (
-        <div className="rounded-app border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {err}
-        </div>
-      )}
-      {ok && (
-        <div className="rounded-app border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
-          {ok}
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 flex items-center justify-center">
+            <span className="text-red-600 text-xs">✕</span>
+          </div>
+          <p className="text-sm text-red-700">{err}</p>
         </div>
       )}
 
-      <button type="submit" disabled={loading} className="btn btn-primary w-full">
-        {loading ? "Création du compte..." : "Créer mon compte pro"}
-      </button>
+      <form onSubmit={onSubmit} className="space-y-6">
+        {step === 1 && (
+          <>
+            <h3 className="text-lg font-medium text-neutral-900">Informations personnelles</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">Prénom *</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type="text"
+                    value={form.firstName}
+                    onChange={(e) => update("firstName", e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all"
+                    placeholder="Jean"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">Nom *</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type="text"
+                    value={form.lastName}
+                    onChange={(e) => update("lastName", e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all"
+                    placeholder="Dupont"
+                  />
+                </div>
+              </div>
+            </div>
 
-      <p className="mt-2 text-xs text-muted">
-        Pas de CB requise. Les informations professionnelles détaillées pourront être complétées après activation.
-      </p>
-    </form>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">E-mail *</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => update("email", e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all"
+                  placeholder="contact@entreprise.com"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">Mot de passe *</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type="password"
+                    minLength={8}
+                    value={form.password}
+                    onChange={(e) => update("password", e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <p className="text-xs text-neutral-500 mt-1">Minimum 8 caractères</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">Confirmer *</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type="password"
+                    minLength={8}
+                    value={form.passwordConfirm}
+                    onChange={(e) => update("passwordConfirm", e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={nextStep}
+              className="w-full bg-gradient-to-r from-[#4B2377] to-purple-700 hover:from-[#3a1b5f] hover:to-purple-800 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group"
+            >
+              <span>Continuer</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <h3 className="text-lg font-medium text-neutral-900">Informations professionnelles</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">Raison sociale *</label>
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type="text"
+                    value={form.companyName}
+                    onChange={(e) => update("companyName", e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all"
+                    placeholder="Entreprise SARL"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">SIRET * (14 chiffres)</label>
+                <div className="relative">
+                  <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type="text"
+                    value={form.siret}
+                    onChange={(e) => update("siret", e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all"
+                    placeholder="12345678900012"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">Adresse professionnelle *</label>
+              <div className="relative">
+                <Home className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                <input
+                  type="text"
+                  value={form.street}
+                  onChange={(e) => update("street", e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all"
+                  placeholder="123 Avenue des Champs-Élysées"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">Code postal *</label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type="text"
+                    value={form.postalCode}
+                    onChange={(e) => update("postalCode", e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all"
+                    placeholder="75008"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">Ville *</label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type="text"
+                    value={form.city}
+                    onChange={(e) => update("city", e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all"
+                    placeholder="Paris"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">Site web</label>
+              <div className="relative">
+                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                <input
+                  type="url"
+                  value={form.website}
+                  onChange={(e) => update("website", e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all"
+                  placeholder="https://www.monentreprise.com"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={prevStep}
+                className="flex-1 border border-neutral-300 text-neutral-700 font-medium py-3 px-4 rounded-lg hover:bg-neutral-50 transition-colors flex items-center justify-center gap-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Retour</span>
+              </button>
+              <button
+                type="button"
+                onClick={nextStep}
+                className="flex-1 bg-gradient-to-r from-[#4B2377] to-purple-700 hover:from-[#3a1b5f] hover:to-purple-800 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group"
+              >
+                <span>Continuer</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <h3 className="text-lg font-medium text-neutral-900">Conditions</h3>
+            
+            <div className="space-y-3">
+              <label className="flex items-start gap-3 p-4 rounded-lg border border-neutral-200 hover:border-[#4B2377]/30 transition-colors cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.cgvAccepted}
+                  onChange={(e) => update("cgvAccepted", e.target.checked)}
+                  className="mt-0.5 w-5 h-5 rounded border-neutral-300 text-[#4B2377] focus:ring-[#4B2377]/20"
+                />
+                <span className="text-sm text-neutral-700">J'accepte les CGV *</span>
+              </label>
+
+              <label className="flex items-start gap-3 p-4 rounded-lg border border-neutral-200 hover:border-[#4B2377]/30 transition-colors cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.mandateAccepted}
+                  onChange={(e) => update("mandateAccepted", e.target.checked)}
+                  className="mt-0.5 w-5 h-5 rounded border-neutral-300 text-[#4B2377] focus:ring-[#4B2377]/20"
+                />
+                <span className="text-sm text-neutral-700">J'accepte le mandat d'apport d'affaire *</span>
+              </label>
+
+              <label className="flex items-start gap-3 p-4 rounded-lg border border-neutral-200 hover:border-[#4B2377]/30 transition-colors cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.rgpdAccepted}
+                  onChange={(e) => update("rgpdAccepted", e.target.checked)}
+                  className="mt-0.5 w-5 h-5 rounded border-neutral-300 text-[#4B2377] focus:ring-[#4B2377]/20"
+                />
+                <span className="text-sm text-neutral-700">J'accepte la politique RGPD *</span>
+              </label>
+
+              <label className="flex items-start gap-3 p-4 rounded-lg border border-neutral-200 hover:border-[#4B2377]/30 transition-colors cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.newsletter}
+                  onChange={(e) => update("newsletter", e.target.checked)}
+                  className="mt-0.5 w-5 h-5 rounded border-neutral-300 text-[#4B2377] focus:ring-[#4B2377]/20"
+                />
+                <span className="text-sm text-neutral-700">Je souhaite m'inscrire à la newsletter</span>
+              </label>
+            </div>
+
+            <div className="bg-purple-50 border border-[#4B2377]/20 rounded-lg p-4 mt-4">
+              <p className="text-xs text-neutral-600">
+                Un abonnement sera requis pour accéder aux fonctionnalités professionnelles.
+              </p>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={prevStep}
+                className="flex-1 border border-neutral-300 text-neutral-700 font-medium py-3 px-4 rounded-lg hover:bg-neutral-50 transition-colors flex items-center justify-center gap-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Retour</span>
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 bg-gradient-to-r from-[#4B2377] to-purple-700 hover:from-[#3a1b5f] hover:to-purple-800 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Création...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Check className="w-5 h-5" />
+                    <span>Créer mon compte pro</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </>
+        )}
+      </form>
+    </div>
   );
 }

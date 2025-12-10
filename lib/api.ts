@@ -45,6 +45,11 @@ export const profileAPI = {
     website?: string;
     socialMedia?: any;
     newsletterSubscription?: boolean;
+    bankInfo?: {
+      iban?: string;
+      bic?: string;
+      accountHolder?: string;
+    };
   }) => {
     return apiCall('/api/profile/update', {
       method: 'PUT',
