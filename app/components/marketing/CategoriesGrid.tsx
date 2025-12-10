@@ -49,18 +49,19 @@ function CategoryCard({
         <div
           className="
             absolute inset-0
-            bg-gradient-to-t from-black/50 via-black/5 to-transparent
-            transition-opacity duration-200
-            group-hover:opacity-95
+            bg-linear-to-t from-black/60 via-black/10 to-transparent
+            transition-opacity duration-300
+            group-hover:opacity-100
           "
+          style={{ opacity: 0.9 }}
         />
 
         {/* Label en bas, glisse légèrement vers le haut au hover */}
         <div
           className="
-            absolute bottom-0 left-0 right-0 z-10 px-3 pb-3
-            translate-y-0 group-hover:-translate-y-0.5
-            transition-transform duration-200
+            absolute bottom-0 left-0 right-0 z-10 px-4 pb-4
+            translate-y-0 group-hover:-translate-y-1
+            transition-transform duration-300
           "
         >
           <span
@@ -68,7 +69,7 @@ function CategoryCard({
               text-sm font-semibold text-white
               drop-shadow
             "
-            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
+            style={{ textShadow: "0 2px 4px rgba(0,0,0,0.6)" }}
           >
             {label}
           </span>
@@ -105,8 +106,13 @@ function CategoryCard({
 
 function CategoriesGridComponent() {
   return (
-    <div>
-      <h3 className="mb-6 h3">Catégories</h3>
+    <div className="space-y-6">
+      <div>
+        <h3 className="h3">Parcourez nos catégories</h3>
+        <p className="text-sm text-muted mt-2">
+          Trouvez les objets de vos rêves parmi notre sélection diverse et curatée
+        </p>
+      </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
         {CATEGORIES.map((c) => (

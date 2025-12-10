@@ -4,19 +4,44 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const images = [
-  { src: "/objects/montres.jpg", alt: "Objet 1" },
-  { src: "/objects/obj2.jpg", alt: "Objet 2" },
-  { src: "/objects/obj3.jpg", alt: "Objet 3" },
-  { src: "/objects/obj4.jpg", alt: "Objet 4" },
-  { src: "/objects/obj5.jpg", alt: "Objet 5" },
+  { src: "/objects/montres.jpg", alt: "Montre de collection" },
+  { src: "/objects/obj2.jpg", alt: "Sac vintage" },
+  { src: "/objects/obj3.jpg", alt: "Tableau moderne" },
+  { src: "/objects/obj4.jpg", alt: "Bijou ancien" },
+  { src: "/objects/obj5.jpg", alt: "Objet design" },
 ];
 
 const descriptifs = [
-  { title: "Montre de collection", price: "24 500 €", result: "Adjugée à 26 000 €" },
-  { title: "Sac vintage", price: "3 200 €", result: "Adjugé à 3 600 €" },
-  { title: "Tableau moderne", price: "12 000 €", result: "Adjugé à 14 200 €" },
-  { title: "Bijou ancien", price: "7 800 €", result: "Adjugé à 8 300 €" },
-  { title: "Objet design", price: "1 200 €", result: "Adjugé à 1 450 €" },
+  { 
+    title: "Montre de collection", 
+    price: "24 500 €", 
+    result: "Adjugée à 26 000 €",
+    description: "Pièce horlogère rare avec mécanisme suisse original"
+  },
+  { 
+    title: "Sac vintage", 
+    price: "3 200 €", 
+    result: "Adjugé à 3 600 €",
+    description: "Cuir authentique d'époque avec patine naturelle"
+  },
+  { 
+    title: "Tableau moderne", 
+    price: "12 000 €", 
+    result: "Adjugé à 14 200 €",
+    description: "Œuvre signée avec provenance documentée"
+  },
+  { 
+    title: "Bijou ancien", 
+    price: "7 800 €", 
+    result: "Adjugé à 8 300 €",
+    description: "Or 18 carats avec pierres précieuses authentifiées"
+  },
+  { 
+    title: "Objet design", 
+    price: "1 200 €", 
+    result: "Adjugé à 1 450 €",
+    description: "Pièce icône du design minimaliste contemporain"
+  },
 ];
 
 export default function HeroBandeau() {
@@ -37,7 +62,7 @@ export default function HeroBandeau() {
     setAnimating(true);
     const n = ((next % len) + len) % len;
     setIndex(n);
-    window.setTimeout(() => setAnimating(false), 450);
+    window.setTimeout(() => setAnimating(false), 500);
   };
 
   const next = () => goTo(indexRef.current + 1);
@@ -52,7 +77,7 @@ export default function HeroBandeau() {
     stopAuto();
     intervalRef.current = setInterval(() => {
       goTo(indexRef.current + 1);
-    }, 4000);
+    }, 5000);
   };
 
   const stopAuto = () => {
@@ -80,17 +105,17 @@ export default function HeroBandeau() {
   };
 
   return (
-<div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-center">
-      {/* Carrousel (fade) */}
+    <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-start md:gap-12">
+      {/* Carrousel amélioré */}
       <div
-  className="relative w-full overflow-hidden rounded-app border-subtle surface-2 md:mt-18"
+        className="relative w-full overflow-hidden rounded-app border-subtle surface-2 shadow-sm"
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
-        aria-label="Carrousel d’objets en vedette"
+        aria-label="Carrousel d'objets en vedette"
       >
-        <div className="relative aspect-video">
+        <div className="relative aspect-square">
           {/* Slides superposées */}
           {images.map((img, i) => (
             <div
@@ -98,7 +123,7 @@ export default function HeroBandeau() {
               className="absolute inset-0"
               style={{
                 opacity: i === index ? 1 : 0,
-                transition: "opacity 450ms ease",
+                transition: "opacity 500ms ease-in-out",
               }}
             >
               <Image
@@ -112,13 +137,17 @@ export default function HeroBandeau() {
             </div>
           ))}
 
-          {/* Flèches simples noires */}
+          {/* Overlay gradient léger */}
+          <div 
+            className="absolute inset-0 bg-linear-to-t from-black/15 to-transparent pointer-events-none"
+          />
+          {/* Flèches avec meilleure visibilité */}
           <button
             type="button"
             onClick={prev}
             aria-label="Image précédente"
-            className="group absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full"
-            style={{ background: "transparent", padding: "6px" }}
+            className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full p-2 transition-all hover:bg-white/25 active:bg-white/35"
+            style={{ backdropFilter: "blur(4px)" }}
           >
             <ChevronLeftBlack />
           </button>
@@ -126,115 +155,173 @@ export default function HeroBandeau() {
             type="button"
             onClick={next}
             aria-label="Image suivante"
-            className="group absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full"
-            style={{ background: "transparent", padding: "6px" }}
+            className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full p-2 transition-all hover:bg-white/25 active:bg-white/35"
+            style={{ backdropFilter: "blur(4px)" }}
           >
             <ChevronRightBlack />
           </button>
 
-          {/* Puces */}
-          <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+          {/* Indicateurs de pagination animés */}
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2.5 z-20">
             {images.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                aria-label={`Aller à l’image \${i + 1}`}
-                className="h-2.5 w-2.5 rounded-full border"
+                aria-label={`Aller à l'image ${i + 1}`}
+                className="transition-all duration-300"
                 style={{
-                  borderColor: "var(--text)",
-                  background: i === index ? "var(--text)" : "transparent",
-                  opacity: i === index ? 0.9 : 0.5,
-                  transition: "opacity .2s ease, background .2s ease",
+                  width: i === index ? "28px" : "8px",
+                  height: "8px",
+                  borderRadius: "4px",
+                  background: i === index ? "white" : "rgba(255,255,255,0.5)",
+                  border: "1px solid rgba(255,255,255,0.4)",
+                  opacity: i === index ? 1 : 0.6,
+                  cursor: "pointer",
                 }}
               />
             ))}
           </div>
+
+          {/* Compteur d'images */}
+          <div 
+            className="absolute top-4 right-4 z-20 px-3 py-1 rounded-full text-xs font-medium text-white"
+            style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
+          >
+            {index + 1} / {len}
+          </div>
         </div>
       </div>
 
-      {/* Descriptif synchronisé avec mise en avant typographique de la ligne active */}
-      <div className="space-y-5">
-        <div>
+      {/* Section description améliorée */}
+      <div className="space-y-6">
+        {/* Header avec texte descriptif */}
+        <div className="space-y-3">
           <h2 className="h2">Objets en vedette</h2>
-          <p className="mt-2 text-muted">Sélection d’objets et résultats de vente passés.</p>
+          <p className="text-base text-muted leading-relaxed">
+            Découvrez nos sélections des objets les plus remarquables de nos ventes récentes. 
+            Chaque pièce a été soigneusement authentifiée et estimée par nos experts avant d'être 
+            proposée à nos enchérisseurs. Les résultats affichés témoignent du succès de ces ventes exceptionnelles.
+          </p>
         </div>
 
-        <div className="rounded-app border-subtle surface">
+        {/* Liste des descriptions avec meilleure UX */}
+        <div className="rounded-app border-subtle surface overflow-hidden">
           <ul className="divide-y" style={{ borderColor: "var(--border)" }}>
             {descriptifs.map((d, i) => {
               const active = i === index;
               return (
                 <li
                   key={i}
-                  className="flex items-center justify-between px-4 py-3 cursor-pointer"
+                  className="px-4 py-4 cursor-pointer transition-all duration-300"
                   onClick={() => goTo(i)}
                   style={{
                     background: active ? "var(--surface-2)" : "var(--surface)",
-                    borderLeft: active ? "3px solid var(--brand)" : "3px solid transparent",
-                    transition: "background-color .25s ease, border-color .25s ease",
+                    borderLeft: active ? "4px solid var(--brand)" : "4px solid transparent",
                   }}
                 >
-                  <div>
-                    <div
-                      style={{
-                        fontWeight: active ? 700 : 600, 
-                        letterSpacing: active ? "0.1px" : "0px",
-                        transition: "color .25s ease, font-weight .25s ease, letter-spacing .25s ease",
-                      }}
-                    >
-                      {d.title}
+                  {/* Titre et prix */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h3
+                        className="font-semibold leading-tight"
+                        style={{
+                          fontSize: active ? "1rem" : "0.95rem",
+                          fontWeight: active ? 700 : 600,
+                          transition: "font-weight .25s ease, font-size .25s ease",
+                        }}
+                      >
+                        {d.title}
+                      </h3>
+                      {/* Description supplémentaire pour pièces actives */}
+                      {active && (
+                        <p 
+                          className="text-sm mt-2 text-muted"
+                          style={{
+                            animation: "fadeIn 300ms ease-out",
+                          }}
+                        >
+                          {d.description}
+                        </p>
+                      )}
                     </div>
-                    <div
-                      className="text-sm"
+                    <div 
+                      className="text-sm font-semibold whitespace-nowrap shrink-0"
                       style={{
-                        color: "var(--muted)",
+                        color: active ? "var(--brand)" : "var(--text)",
                         transition: "color .25s ease",
                       }}
                     >
-                      Prix de départ: {d.price}
+                      {d.result}
                     </div>
                   </div>
-                  <div
-                    className="text-sm"
-                    style={{
-                      fontWeight: active ? 700 : 600,
-                      color: active ? "" : "var(--text)",
-                      transition: "color .25s ease, font-weight .25s ease",
-                    }}
-                  >
-                    {d.result}
+                  
+                  {/* Prix de départ */}
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-xs text-muted uppercase tracking-wide">
+                      Mise à prix
+                    </span>
+                    <span 
+                      className="text-sm"
+                      style={{
+                        color: active ? "var(--brand)" : "var(--muted)",
+                        transition: "color .25s ease",
+                      }}
+                    >
+                      {d.price}
+                    </span>
                   </div>
                 </li>
               );
             })}
           </ul>
         </div>
+
+        {/* Stats et CTAs */}
+        <div className="grid grid-cols-2 gap-4 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: "var(--brand)" }}>
+              {Math.round((descriptifs.reduce((sum, d) => {
+                const start = parseInt(d.price.replace(/[^0-9]/g, ''));
+                const end = parseInt(d.result.replace(/[^0-9]/g, ''));
+                return sum + ((end - start) / start * 100);
+              }, 0) / descriptifs.length))}%
+            </div>
+            <p className="text-xs text-muted mt-1">Plus-value moyenne</p>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: "var(--brand)" }}>
+              {descriptifs.length}
+            </div>
+            <p className="text-xs text-muted mt-1">Objets vedettes</p>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-/* Chevrons simples noirs */
+/* Chevrons améliorés */
 function ChevronLeftBlack() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M15 19L8 12L15 5"
-        stroke="#111111"
-        strokeWidth="2"
+        stroke="white"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
     </svg>
   );
 }
+
 function ChevronRightBlack() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M9 5L16 12L9 19"
-        stroke="#111111"
-        strokeWidth="2"
+        stroke="white"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
