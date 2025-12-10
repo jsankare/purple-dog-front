@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Purple Dog — README
 
-## Getting Started
+Plateforme de mise en relation pour la vente et l’achat d’objets de valeur entre particuliers vendeurs et professionnels du marché de l’art.
 
-First, run the development server:
+## Objectif
+Centraliser la publication, l’évaluation, l’achat et la logistique d’objets de valeur via trois espaces distincts :
+- Dashboard Professionnels
+- Dashboard Particuliers
+- Back Office Administrateur
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Structure générale
+Application web responsive (PWA), servie via un domaine public HTTPS.
+Architecture conteneurisée Docker :
+- Frontend statique
+- API backend
+- Base de données
+- Conteneur Ollama pour l’IA interne
+  Aucune API IA externe autorisée.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Parcours utilisateur
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Homepage
+Bloc marketing modulable.
+Header : logo, connexion, inscription.
+Carrousel + descriptifs.
+Catégories visuelles.
+Présentation Purple Dog.
+Newsletter.
+Footer légal et contact.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Inscription
+**Particuliers**
+Profil basique, données anonymisées, validation email, RGPD, majorité obligatoire.
+Aucune information personnelle visible hormis le prénom.
 
-## Learn More
+**Professionnels**
+Identité + entreprise + SIRET + documents officiels + marketing.
+Validation email, RGPD, CGV, mandat d’apport d’affaires.
+API gouvernementale possible pour vérifier l’entreprise.
 
-To learn more about Next.js, take a look at the following resources:
+### Forfaits
+Particuliers : gratuit.
+Professionnels : 1 mois gratuit puis 49€/mois.
+Modèles modifiables via Back Office.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Connexion
+Mail + mot de passe pour tous les rôles.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Dashboard Professionnels
 
-## Deploy on Vercel
+### Feature 1 — Mettre en vente
+Formulaire complet : nom, catégorie, dimensions, poids, description, documents, 10+ photos, prix souhaité.
+Mode de vente : enchères ou vente rapide.
+Recommandation de prix via IA locale + données d’enchères.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### Système d’enchères
+Démarrage auto à -10%.
+Durée 1 semaine.
+Paliers automatiques.
+Enchère automatique.
+Extensions de temps en cas de bataille.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+#### Vente rapide
+Prix fixe. Première offre validée = vente.
+
+### Feature 2 — Mes objets en vente
+Liste, offres, questions.
+Notifications mail et visuelles.
+Modération IA des messages (anti-contact direct).
+
+### Feature 3 — Favoris / Historique
+Objets likés, enchères posées, achats, ventes ratées.
+
+### Feature 4 — Recherche
+Filtres : prix, mode, catégorie, disponibilité.
+Recherche textuelle avec suggestions.
+Temps réel pour les enchères.
+Notifications enchères et ventes rapides.
+
+### Feature 5 — Profil
+Édition des données essentielles.
+
+### Feature 6 — Avis
+Étoiles, NPS, commentaires.
+
+## Dashboard Particuliers
+Même logique que professionnels mais uniquement orienté vente.
+Tendances des recherches pros visibles.
+
+- Vendre un objet
+- Suivi des ventes
+- Profil
+- Avis
+
+## Back Office
+- Gestion commissions
+- Gestion catégories
+- Modification formulaires
+- Comptes utilisateurs
+- Blocage comptes
+- Suivi ventes rapides et enchères
+- Gestion Stripe
+- Gestion transporteurs (simulés)
+- Comptabilité
+- Avis utilisateurs
+
+## Paiement et logistique
+- Coordonnées livraison/facturation + paiement Stripe
+- Choix transporteur (mock via Adapter)
+- Fonds bloqués
+- Notifications vendeur
+- Collecte transporteur
+- Signature réception acheteur
+- Déblocage paiement 3–5 jours
+
+## Contraintes techniques
+1. PWA responsive
+2. Docker obligatoire
+3. Technologies libres mais documentées
+4. IA interne via Ollama uniquement
+5. Stripe (test)
+6. Transporteurs simulés via Adapter
+7. Temps réel : SSE ou WebSockets (polling interdit)
+
+## Lexique
+Particuliers : vendent exclusivement.
+Professionnels : vendent et achètent.
+Catégories : bijoux, montres, meubles, art, collection, vins, mode, etc.
+Commissions : acheteur +3%, vendeur –2%.
