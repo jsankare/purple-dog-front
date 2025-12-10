@@ -71,23 +71,13 @@ export default function ChangeEmailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-purple-50/30 to-neutral-100">
-      <header className="bg-white/80 backdrop-blur-md border-b border-neutral-200/50">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center gap-4">
-            <Link 
-              href="/profile" 
-              className="text-neutral-600 hover:text-[#4B2377] transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </Link>
-            <h1 className="text-3xl font-light tracking-tight text-neutral-900">
-              Changer l'<span className="text-[#4B2377] font-normal">Email</span>
-            </h1>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-2xl mx-auto px-6 py-12">
+      <div className="max-w-2xl mx-auto px-6 py-8">
+        <Link 
+          href="/profile" 
+          className="inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-neutral-100 text-neutral-600 hover:text-[#4B2377] transition-colors mb-6"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
         <div className="bg-white rounded-lg shadow-sm border border-neutral-200/50 p-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center">
@@ -183,19 +173,13 @@ export default function ChangeEmailPage() {
               </div>
             </div>
 
-            <div className="flex gap-4 pt-6 border-t border-neutral-200">
-              <Link
-                href="/profile"
-                className="flex-1 px-6 py-3 text-center rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-50 transition-colors"
-              >
-                Annuler
-              </Link>
+            <div className="flex justify-end pt-6 border-t border-neutral-200">
               <button
                 type="submit"
-                disabled={loading}
-                className="flex-1 px-6 py-3 rounded-lg bg-[#4B2377] text-white hover:bg-purple-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={submitting}
+                className="px-6 py-3 rounded-lg bg-[#4B2377] text-white hover:bg-purple-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? (
+                {submitting ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   'Changer l\'email'

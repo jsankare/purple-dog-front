@@ -96,15 +96,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-purple-50/30 to-neutral-100">
-      <header className="bg-white/80 backdrop-blur-md border-b border-neutral-200/50">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <h1 className="text-3xl font-light tracking-tight text-neutral-900">
-            Mon <span className="text-[#4B2377] font-normal">Profil</span>
-          </h1>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-24">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white rounded-lg shadow-sm border border-neutral-200/50 overflow-hidden">
