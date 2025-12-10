@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, Camera } from 'lucide-react';
+import { ArrowLeft, Save, User, MapPin, Building } from 'lucide-react';
 import { profileAPI } from '@/lib/api';
 
 export default function EditProfilePage() {
@@ -91,55 +91,61 @@ export default function EditProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#4B2377] border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-[#F9F3FF] flex items-center justify-center">
+        <div className="w-12 h-12 border-2 border-neutral-300 border-t-[#4B2377] rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-purple-50/30 to-neutral-100">
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <Link 
-          href="/profile" 
-          className="inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-neutral-100 text-neutral-600 hover:text-[#4B2377] transition-colors mb-6"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <div className="bg-white rounded-lg shadow-sm border border-neutral-200/50 overflow-hidden">
-          <div className="relative h-32 bg-gradient-to-r from-[#4B2377] to-purple-700">
-            <div className="absolute -bottom-10 left-6">
-              <div className="relative">
-                <div className="w-20 h-20 bg-white rounded-full border-4 border-white shadow-lg flex items-center justify-center">
-                  <img 
-                    src="https://ui-avatars.com/api/?name=Alexandra+Dubois&size=80&background=4B2377&color=fff" 
-                    alt="Profile" 
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                </div>
-                <button className="absolute bottom-0 right-0 w-6 h-6 bg-[#4B2377] rounded-full flex items-center justify-center shadow-lg hover:bg-purple-800 transition-colors">
-                  <Camera className="w-3 h-3 text-white" />
-                </button>
-              </div>
-            </div>
+    <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Breadcrumb */}
+        <div className="mb-8">
+          <Link 
+            href="/profile" 
+            className="inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Retour au profil</span>
+          </Link>
+        </div>
+
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-serif text-neutral-900 mb-2">
+            Modifier mon profil
+          </h1>
+          <div className="w-24 h-px bg-[#4B2377]"></div>
+        </div>
+
+        {/* Messages */}
+        {message && (
+          <div className={`mb-6 p-4 border ${
+            message.type === 'success' 
+              ? 'bg-green-50 border-green-200 text-green-800' 
+              : 'bg-red-50 border-red-200 text-red-800'
+          }`}>
+            {message.text}
           </div>
+        )}
 
-          <div className="pt-12 px-6 pb-6">
-            {message && (
-              <div className={`mb-4 p-3 rounded-lg text-sm ${
-                message.type === 'success' 
-                  ? 'bg-green-50 text-green-800 border border-green-200' 
-                  : 'bg-red-50 text-red-800 border border-red-200'
-              }`}>
-                {message.text}
+        {/* Form Card */}
+        <div className="bg-white border border-neutral-200 p-8">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Informations personnelles */}
+            <div>
+              <div className="flex items-center gap-2 mb-6">
+                <User className="w-5 h-5 text-[#4B2377]" />
+                <h2 className="text-xl font-semibold text-neutral-900">
+                  Informations personnelles
+                </h2>
               </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-2">
-                    Prénom
+                    Prénom <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -147,14 +153,14 @@ export default function EditProfilePage() {
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm"
+                    className="w-full px-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors"
                     required
                   />
                 </div>
 
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 mb-2">
-                    Nom
+                    Nom <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -162,17 +168,25 @@ export default function EditProfilePage() {
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm"
+                    className="w-full px-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors"
                     required
                   />
                 </div>
               </div>
+            </div>
 
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium text-neutral-900 uppercase tracking-wider">Adresse</h3>
-                
+            {/* Adresse */}
+            <div className="pt-8 border-t border-neutral-200">
+              <div className="flex items-center gap-2 mb-6">
+                <MapPin className="w-5 h-5 text-[#4B2377]" />
+                <h2 className="text-xl font-semibold text-neutral-900">
+                  Adresse
+                </h2>
+              </div>
+              
+              <div className="space-y-6">
                 <div>
-                  <label htmlFor="street" className="block text-sm font-medium text-neutral-700 mb-1">
+                  <label htmlFor="street" className="block text-sm font-medium text-neutral-700 mb-2">
                     Rue
                   </label>
                   <input
@@ -181,29 +195,14 @@ export default function EditProfilePage() {
                     name="street"
                     value={formData.street}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm"
+                    className="w-full px-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors"
                     placeholder="123 Avenue des Champs-Élysées"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-neutral-700 mb-1">
-                      Ville
-                    </label>
-                    <input
-                      type="text"
-                      id="city"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm"
-                      placeholder="Paris"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="postalCode" className="block text-sm font-medium text-neutral-700 mb-1">
+                    <label htmlFor="postalCode" className="block text-sm font-medium text-neutral-700 mb-2">
                       Code postal
                     </label>
                     <input
@@ -212,13 +211,28 @@ export default function EditProfilePage() {
                       name="postalCode"
                       value={formData.postalCode}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm"
+                      className="w-full px-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors"
                       placeholder="75008"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="country" className="block text-sm font-medium text-neutral-700 mb-1">
+                    <label htmlFor="city" className="block text-sm font-medium text-neutral-700 mb-2">
+                      Ville
+                    </label>
+                    <input
+                      type="text"
+                      id="city"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors"
+                      placeholder="Paris"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="country" className="block text-sm font-medium text-neutral-700 mb-2">
                       Pays
                     </label>
                     <input
@@ -227,17 +241,27 @@ export default function EditProfilePage() {
                       name="country"
                       value={formData.country}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm"
+                      className="w-full px-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors"
                       placeholder="France"
                     />
                   </div>
                 </div>
               </div>
+            </div>
 
-              {userRole === 'professionnel' && (
-                <>
+            {/* Informations professionnelles */}
+            {userRole === 'professionnel' && (
+              <div className="pt-8 border-t border-neutral-200">
+                <div className="flex items-center gap-2 mb-6">
+                  <Building className="w-5 h-5 text-[#4B2377]" />
+                  <h2 className="text-xl font-semibold text-neutral-900">
+                    Informations professionnelles
+                  </h2>
+                </div>
+                
+                <div className="space-y-6">
                   <div>
-                    <label htmlFor="companyName" className="block text-sm font-medium text-neutral-700 mb-1">
+                    <label htmlFor="companyName" className="block text-sm font-medium text-neutral-700 mb-2">
                       Nom de l'entreprise
                     </label>
                     <input
@@ -246,13 +270,14 @@ export default function EditProfilePage() {
                       name="companyName"
                       value={formData.companyName}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm"
+                      className="w-full px-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors"
+                      placeholder="Purple Dog SARL"
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label htmlFor="siret" className="block text-sm font-medium text-neutral-700 mb-1">
+                      <label htmlFor="siret" className="block text-sm font-medium text-neutral-700 mb-2">
                         SIRET
                       </label>
                       <input
@@ -261,12 +286,13 @@ export default function EditProfilePage() {
                         name="siret"
                         value={formData.siret}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm"
+                        className="w-full px-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors"
+                        placeholder="123 456 789 00012"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="website" className="block text-sm font-medium text-neutral-700 mb-1">
+                      <label htmlFor="website" className="block text-sm font-medium text-neutral-700 mb-2">
                         Site web
                       </label>
                       <input
@@ -275,32 +301,42 @@ export default function EditProfilePage() {
                         name="website"
                         value={formData.website}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#4B2377] focus:ring-2 focus:ring-[#4B2377]/20 outline-none transition-all text-sm"
-                        placeholder="https://..."
+                        className="w-full px-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors"
+                        placeholder="https://www.exemple.fr"
                       />
                     </div>
                   </div>
-                </>
-              )}
-
-              <div className="flex justify-end pt-6 border-t border-neutral-200">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-6 py-3 rounded-lg bg-[#4B2377] text-white hover:bg-purple-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <>
-                      <Save className="w-5 h-5" />
-                      Enregistrer
-                    </>
-                  )}
-                </button>
+                </div>
               </div>
-            </form>
-          </div>
+            )}
+
+            {/* Actions */}
+            <div className="pt-8 border-t border-neutral-200 flex flex-col sm:flex-row gap-4 justify-end">
+              <Link
+                href="/profile"
+                className="px-6 py-3 border border-neutral-300 text-neutral-700 hover:border-[#4B2377] hover:text-[#4B2377] transition-colors text-center"
+              >
+                Annuler
+              </Link>
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-6 py-3 bg-[#4B2377] text-white hover:bg-[#3d1d61] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Enregistrement...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-5 h-5" />
+                    <span>Enregistrer les modifications</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
