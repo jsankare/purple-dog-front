@@ -163,3 +163,30 @@ export const usersAPI = {
     return apiCall('/api/users/can-bid-sell');
   },
 };
+
+export const objectsAPI = {
+  createObject: async (formData: FormData) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    
+    const headers: Record<string, string> = {};
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_BASE_URL}/api/objects/create`, {
+      method: 'POST',
+      headers,
+      body: formData,
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Erreur lors de la création de l\'objet');
+    }
+
+    return data;
+  },
+};
