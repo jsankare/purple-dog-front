@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authAPI } from "@/lib/api";
-import { Mail, Lock, ArrowRight } from "lucide-react";
+import { Mail, Lock, ArrowRight, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,28 +33,49 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-purple-50/30 to-neutral-100 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#4B2377] to-purple-700 rounded-2xl mb-4 shadow-lg">
-            <Lock className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-light tracking-tight text-neutral-900 mb-2">
-            Bon retour sur <span className="text-[#4B2377] font-normal">Purple Dog</span>
-          </h1>
-          <p className="text-neutral-600">Connectez-vous pour accéder à votre compte</p>
+    <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Breadcrumb */}
+        <div className="mb-8">
+          <Link 
+            href="/" 
+            className="inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Retour à l'accueil</span>
+          </Link>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-neutral-200/50 p-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-serif text-neutral-900 mb-2">
+            Connexion
+          </h1>
+          <div className="w-24 h-px bg-[#4B2377] mb-4"></div>
+          <p className="text-neutral-600">
+            Connectez-vous pour accéder à votre compte Purple Dog
+          </p>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-800">
+            {error}
+          </div>
+        )}
+
+        {/* Form Card */}
+        <div className="bg-white border border-neutral-200 p-8">
           <form onSubmit={onSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
-                Adresse email
+              <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-2">
+                Adresse email <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
                 <input 
-                  className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all duration-200" 
+                  id="email"
+                  className="w-full pl-10 pr-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors" 
                   type="email" 
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)} 
@@ -65,13 +86,14 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
-                Mot de passe
+              <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-2">
+                Mot de passe <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
                 <input 
-                  className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B2377]/20 focus:border-[#4B2377] transition-all duration-200" 
+                  id="password"
+                  className="w-full pl-10 pr-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors" 
                   type="password" 
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)} 
@@ -84,23 +106,14 @@ export default function LoginPage() {
             <div className="flex items-center justify-end">
               <Link 
                 href="/forgot-password" 
-                className="text-sm text-[#4B2377] hover:text-purple-700 font-medium transition-colors"
+                className="text-sm text-[#4B2377] hover:text-purple-700 transition-colors"
               >
                 Mot de passe oublié ?
               </Link>
             </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 flex items-center justify-center">
-                  <span className="text-red-600 text-xs">✕</span>
-                </div>
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
-
             <button 
-              className="w-full bg-gradient-to-r from-[#4B2377] to-purple-700 hover:from-[#3a1b5f] hover:to-purple-800 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group" 
+              className="w-full bg-[#4B2377] text-white hover:bg-[#3d1d61] transition-colors flex items-center justify-center gap-2 py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed" 
               disabled={loading}
               type="submit"
             >
@@ -112,13 +125,14 @@ export default function LoginPage() {
               ) : (
                 <>
                   <span>Se connecter</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-5 h-5" />
                 </>
               )}
             </button>
           </form>
         </div>
 
+        {/* Signup Link */}
         <div className="mt-6 text-center">
           <p className="text-neutral-600">
             Pas encore de compte ?{' '}
