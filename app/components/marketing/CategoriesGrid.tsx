@@ -2,19 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { memo } from "react";
-
-const CATEGORIES = [
-  { label: "Montres", slug: "montres", image: "/objects/montres.jpg" },
-  { label: "Bijoux", slug: "bijoux", image: "/objects/bijoux.jpg" },
-  { label: "Art", slug: "art", image: "/objects/art.jpg" },
-  { label: "Design", slug: "design", image: "/objects/design.webp" },
-  { label: "Sacs", slug: "sacs", image: "/objects/sacs.avif" },
-  { label: "Vinyls", slug: "vinyls", image: "/objects/vinyls.jpg" },
-  { label: "BD", slug: "bd", image: "/objects/bd.png" },
-  { label: "Mobilier", slug: "mobilier", image: "/objects/mobilier.jpg" },
-  { label: "Photographie", slug: "photographie", image: "/objects/photographie.jpg" },
-  { label: "Instruments", slug: "instruments", image: "/objects/instruments.jpg" },
-];
+import { CATEGORIES } from "@/lib/categories";
 
 function CategoryCard({
   label,
@@ -27,8 +15,8 @@ function CategoryCard({
 }) {
   return (
     <Link
-      href={`/categories/\${encodeURIComponent(slug)}`}
-      aria-label={`Voir la catégorie \${label}`}
+      href={`/categories/${encodeURIComponent(slug)}`}
+      aria-label={`Voir la catégorie ${label}`}
       className="
         group relative block overflow-hidden rounded-app border-subtle
         will-change-transform

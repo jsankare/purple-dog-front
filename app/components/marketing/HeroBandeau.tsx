@@ -191,7 +191,7 @@ export default function HeroBandeau() {
                         transition: "color .25s ease",
                       }}
                     >
-                      Estimation: {d.price}
+                      Prix de départ: {d.price}
                     </div>
                   </div>
                   <div
