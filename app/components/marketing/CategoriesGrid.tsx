@@ -1,126 +1,97 @@
-// app/components/CategoriesGrid.tsx
 import Link from "next/link";
-import Image from "next/image";
-import { memo } from "react";
-import { CATEGORIES } from "@/lib/categories";
 
-function CategoryCard({
-  label,
-  slug,
-  image,
-}: {
-  label: string;
-  slug: string;
-  image?: string;
-}) {
+const categories = [
+  {
+    name: "Art & Peinture",
+    count: "342 objets",
+    image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400&h=400&fit=crop"
+  },
+  {
+    name: "Horlogerie",
+    count: "198 objets",
+    image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&h=400&fit=crop"
+  },
+  {
+    name: "Mobilier",
+    count: "156 objets",
+    image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=400&fit=crop"
+  },
+  {
+    name: "Livres anciens",
+    count: "284 objets",
+    image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=400&fit=crop"
+  },
+  {
+    name: "Vins & Spiritueux",
+    count: "127 objets",
+    image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=400&fit=crop"
+  },
+  {
+    name: "Photographie",
+    count: "89 objets",
+    image: "https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?w=400&h=400&fit=crop"
+  },
+  {
+    name: "Bijoux",
+    count: "215 objets",
+    image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop"
+  },
+  {
+    name: "Instruments",
+    count: "67 objets",
+    image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&h=400&fit=crop"
+  },
+  {
+    name: "Mode & Accessoires",
+    count: "178 objets",
+    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=400&fit=crop"
+  },
+  {
+    name: "Collection",
+    count: "234 objets",
+    image: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=400&h=400&fit=crop"
+  },
+];
+
+export default function CategoriesGrid() {
   return (
-    <Link
-      href={`/categories/${encodeURIComponent(slug)}`}
-      aria-label={`Voir la catégorie ${label}`}
-      className="
-        group relative block overflow-hidden rounded-app border-subtle
-        will-change-transform
-        transition-transform duration-200 ease-out
-        hover:scale-[1.03] focus-visible:scale-[1.03]
-        focus-visible:outline-none
-      "
-    >
-      <div
-        className="
-          relative aspect-square w-full
-          rounded-app
-          ring-1 ring-black/5 dark:ring-white/10
-          transition-shadow duration-200
-          group-hover:shadow-lg group-hover:shadow-black/10 dark:group-hover:shadow-white/5
-        "
-      >
-        {/* Image optimisée */}
-        <Image
-          src={image ?? "/objects/fallback.jpg"}
-          alt={label}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
-          priority={false}
-          style={{ objectFit: "cover" }}
-          className="transition-transform duration-300 ease-out group-hover:scale-105"
-        />
+    <section className="bg-white border border-neutral-200 p-8 lg:p-12">
+      <div className="mb-10">
+        <h2 className="text-3xl lg:text-4xl font-serif text-neutral-900 mb-4">
+          Catégories d'objets
+        </h2>
+        <div className="w-16 h-px bg-[#4B2377]"></div>
+      </div>
 
-        {/* Léger zoom + assombrissement progressif */}
-        <div
-          className="
-            absolute inset-0
-            bg-linear-to-t from-black/60 via-black/10 to-transparent
-            transition-opacity duration-300
-            group-hover:opacity-100
-          "
-          style={{ opacity: 0.9 }}
-        />
-
-        {/* Label en bas, glisse légèrement vers le haut au hover */}
-        <div
-          className="
-            absolute bottom-0 left-0 right-0 z-10 px-4 pb-4
-            translate-y-0 group-hover:-translate-y-1
-            transition-transform duration-300
-          "
-        >
-          <span
-            className="
-              text-sm font-semibold text-white
-              drop-shadow
-            "
-            style={{ textShadow: "0 2px 4px rgba(0,0,0,0.6)" }}
-          >
-            {label}
-          </span>
-        </div>
-
-        {/* Fallback lettre si pas d'image */}
-        {!image && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span
-              style={{
-                fontFamily: "var(--font-serif, Georgia, serif)",
-                fontWeight: 700,
-                fontSize: "1.75rem",
-                color: "rgba(0,0,0,0.7)",
-              }}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {categories.map((category) => {
+          return (
+            <Link
+              key={category.name}
+              href={`/encheres?category=${category.name.toLowerCase()}`}
+              className="aspect-square border-2 border-neutral-200 hover:border-[#4B2377] transition-all group relative overflow-hidden"
             >
-              {label.charAt(0)}
-            </span>
-          </div>
-        )}
+              <div className="absolute inset-0">
+                <img
+                  src={category.image}
+                  alt={category.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+              </div>
 
-        {/* Bordure accentuée au hover */}
-        <div
-          className="
-            pointer-events-none absolute inset-0 rounded-app
-            ring-0 group-hover:ring-1 ring-black/10 dark:ring-white/20
-            transition-[ring-width,opacity] duration-200
-          "
-        />
+              <div className="relative h-full flex flex-col justify-end p-4 text-white">
+                <h3 className="font-semibold text-sm md:text-base mb-1 drop-shadow-lg">
+                  {category.name}
+                </h3>
+                <p className="text-xs text-white/90 drop-shadow">
+                  {category.count}
+                </p>
+              </div>
+            </Link>
+          );
+        })}
       </div>
-    </Link>
+    </section>
   );
 }
-
-function CategoriesGridComponent() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="h3">Parcourez nos catégories</h3>
-        <p className="text-sm text-muted mt-2">
-          Trouvez les objets de vos rêves parmi notre sélection diverse et curatée
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
-        {CATEGORIES.map((c) => (
-          <CategoryCard key={c.slug} label={c.label} slug={c.slug} image={c.image} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export default memo(CategoriesGridComponent);

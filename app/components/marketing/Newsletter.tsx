@@ -1,46 +1,107 @@
 "use client";
 import { useState } from "react";
+import { Mail, Send, CheckCircle } from "lucide-react";
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
-  const [ok, setOk] = useState<null | string>(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
-  function onSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setOk("Merci, vous êtes inscrit(e) !");
-    setEmail("");
-  }
+    setLoading(true);
+    setError("");
+
+    try {
+      // Simuler l'appel API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // TODO: Remplacer par vrai appel API
+      // const response = await fetch('/api/newsletter', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ email })
+      // });
+
+      setSuccess(true);
+      setEmail("");
+
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
+    } catch (err) {
+      setError("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="rounded-app border-subtle surface-2 p-8 md:p-12 space-y-6">
-      <div className="space-y-2">
-        <h3 className="h3">Restez informé des nos enchères</h3>
-        <p className="text-muted max-w-2xl">
-          Recevez chaque semaine notre sélection d'objets rares, les actualités du marché 
-          et les conseils de nos experts. Soyez parmi les premiers à découvrir nos nouvelles enchères.
-        </p>
-      </div>
-      <form onSubmit={onSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md">
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="votre@email.com"
-          className="input flex-1"
-        />
-        <button type="submit" className="btn btn-primary shrink-0">
-          S'inscrire
-        </button>
-      </form>
-      {ok && (
-        <div className="text-sm p-3 rounded-app" style={{ background: "rgba(22, 101, 52, 0.1)", color: "var(--brand)" }}>
-          ✓ {ok}
+    <section className="bg-[#4B2377] text-white p-8 lg:p-16">
+      <div className="max-w-3xl mx-auto text-center">
+        <div className="w-16 h-16 border-2 border-white rounded-full flex items-center justify-center mx-auto mb-6">
+          <Mail className="w-8 h-8" />
         </div>
-      )}
-      <p className="text-xs text-muted">
-        Nous respectons votre vie privée. Désinscription en un clic.
-      </p>
-    </div>
+
+        <h2 className="text-3xl lg:text-4xl font-serif mb-4">
+          Restez informé
+        </h2>
+        <p className="text-lg text-purple-100 mb-8 leading-relaxed">
+          Inscrivez-vous à notre newsletter et recevez en exclusivité les dernières enchères,
+          actualités du marché et conseils d'experts
+        </p>
+
+        {success ? (
+          <div className="bg-white/10 border border-white/30 p-6 rounded inline-flex items-center gap-3 mx-auto">
+            <CheckCircle className="w-6 h-6 text-white" />
+            <span className="text-white font-medium">
+              Merci ! Votre inscription a été confirmée.
+            </span>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="max-w-xl mx-auto">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Votre adresse email"
+                required
+                className="flex-1 px-6 py-4 bg-white text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-8 py-4 bg-white text-[#4B2377] hover:bg-neutral-100 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-50 whitespace-nowrap"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-[#4B2377] border-t-transparent rounded-full animate-spin"></div>
+                    <span>Envoi...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-5 h-5" />
+                    <span>S'inscrire</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {error && (
+              <p className="mt-4 text-sm text-red-200">
+                {error}
+              </p>
+            )}
+
+            <p className="mt-4 text-sm text-purple-200">
+              En vous inscrivant, vous acceptez de recevoir nos emails marketing.
+              Désinscription possible à tout moment.
+            </p>
+          </form>
+        )}
+      </div>
+    </section>
   );
 }
