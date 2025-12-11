@@ -145,7 +145,7 @@ export default function DashboardParticulier() {
             </div>
           </Link>
 
-          {/* Donner son avis */}
+          {/* Donner son avis */} 
           <Link
             href="/feedback"
             className="bg-white border border-neutral-200 hover:border-[#4B2377] p-6 transition-all hover:shadow-md group"
