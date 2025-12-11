@@ -4,22 +4,7 @@ import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'; 
 import { ArrowLeft, Save, Eye, CheckCircle, X, AlertCircle } from 'lucide-react';
-
-const categories = [
-  { value: 'bijoux-montres', label: 'Bijoux & montres' },
-  { value: 'meubles-anciens', label: 'Meubles anciens' },
-  { value: 'objets-art-tableaux', label: 'Objets d\'art & tableaux' },
-  { value: 'objets-collection', label: 'Objets de collection' },
-  { value: 'vins-spiritueux', label: 'Vins & spiritueux' },
-  { value: 'instruments-musique', label: 'Instruments de musique' },
-  { value: 'livres-manuscrits', label: 'Livres & manuscrits' },
-  { value: 'mode-luxe', label: 'Mode & luxe' },
-  { value: 'horlogerie-pendules', label: 'Horlogerie' },
-  { value: 'photographies-vintage', label: 'Photographies' },
-  { value: 'vaisselle-argenterie', label: 'Vaisselle & argenterie' },
-  { value: 'sculptures-decoratifs', label: 'Sculptures' },
-  { value: 'vehicules-collection', label: 'Véhicules de collection' },
-];
+import { getCategories, formatCategoriesForSelect } from '@/lib/categories';
 
 export default function ModifierObjetPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -27,13 +12,20 @@ export default function ModifierObjetPage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [object, setObject] = useState<any>(null);
+  const [categories, setCategories] = useState<Array<{ value: string; label: string }>>([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     loadObject();
+    loadCategories();
   }, [id]);
+
+  const loadCategories = async () => {
+    const cats = await getCategories();
+    setCategories(formatCategoriesForSelect(cats, false));
+  };
 
   const loadObject = async () => {
     try {

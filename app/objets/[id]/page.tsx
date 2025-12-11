@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link'; 
 import { ArrowLeft, Clock, ChevronLeft, ChevronRight, Package, FileText, User, Heart, Eye } from 'lucide-react';
+import { getCategories, getCategoryName, type Category } from '@/lib/categories';
 
 interface ObjectDetails {
   id: string;
@@ -150,6 +151,7 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
   const { id } = use(params);
   const [object, setObject] = useState<ObjectDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [bidAmount, setBidAmount] = useState('');
   const [showAutoBid, setShowAutoBid] = useState(false);
   const [autoBidAmount, setAutoBidAmount] = useState('');
@@ -157,7 +159,13 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
   useEffect(() => {
     fetchObjectDetails();
     incrementViewCount();
+    fetchCategoriesData();
   }, [id]);
+
+  const fetchCategoriesData = async () => {
+    const cats = await getCategories();
+    setCategories(cats);
+  };
 
   const fetchObjectDetails = async () => {
     try {
@@ -249,22 +257,6 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
     }
   };
 
-  const categories = [
-    { value: 'bijoux-montres', label: 'Bijoux & montres' },
-    { value: 'meubles-anciens', label: 'Meubles anciens' },
-    { value: 'objets-art-tableaux', label: 'Objets d\'art & tableaux' },
-    { value: 'objets-collection', label: 'Objets de collection' },
-    { value: 'vins-spiritueux', label: 'Vins & spiritueux' },
-    { value: 'instruments-musique', label: 'Instruments de musique' },
-    { value: 'livres-manuscrits', label: 'Livres & manuscrits' },
-    { value: 'mode-luxe', label: 'Mode & luxe' },
-    { value: 'horlogerie-pendules', label: 'Horlogerie' },
-    { value: 'photographies-vintage', label: 'Photographies' },
-    { value: 'vaisselle-argenterie', label: 'Vaisselle & argenterie' },
-    { value: 'sculptures-decoratifs', label: 'Sculptures' },
-    { value: 'vehicules-collection', label: 'Véhicules de collection' },
-  ];
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
@@ -320,7 +312,7 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex-1">
                   <span className="inline-block px-3 py-1 text-xs bg-purple-50 text-[#4B2377] border border-purple-200 mb-3">
-                    {categories.find(c => c.value === object.category)?.label || object.category}
+                    {getCategoryName(categories, object.category)}
                   </span>
                   <h1 className="text-3xl font-serif text-neutral-900 mb-2">
                     {object.name}
