@@ -172,6 +172,7 @@ export const authAPI = {
     };
     companyName?: string;
     siret?: string;
+    officialDocument?: string;
     website?: string;
     isOver18?: boolean;
     acceptedGDPR?: boolean;
