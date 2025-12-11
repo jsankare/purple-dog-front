@@ -1,79 +1,85 @@
-// lib/categories.ts
-export type Category = {
-  slug: string;
-  label: string;
-  image: string;
-  description: string;
-  icon?: string;
-};
+// Fonction utilitaire pour récupérer les catégories depuis l'API
 
-export const CATEGORIES: Category[] = [
-  {
-    slug: "montres",
-    label: "Montres",
-    image: "/objects/montres.jpg",
-    description: "Montres vintage, classiques et de luxe. Retrouvez les plus beaux timepieces de collection.",
-  },
-  {
-    slug: "bijoux",
-    label: "Bijoux",
-    image: "/objects/bijoux.jpg",
-    description: "Bijoux anciens et contemporains. Une sélection de pièces uniques et authentiques.",
-  },
-  {
-    slug: "art",
-    label: "Art",
-    image: "/objects/art.jpg",
-    description: "Œuvres d'art originales, gravures et sculptures. Découvrez des créations uniques.",
-  },
-  {
-    slug: "design",
-    label: "Design",
-    image: "/objects/design.webp",
-    description: "Mobilier et objets de design. Des créations iconiques et contemporaines.",
-  },
-  {
-    slug: "sacs",
-    label: "Sacs",
-    image: "/objects/sacs.avif",
-    description: "Sacs à main, sacs de voyage et accessoires. Les plus grandes marques du luxe.",
-  },
-  {
-    slug: "vinyls",
-    label: "Vinyls",
-    image: "/objects/vinyls.jpg",
-    description: "Disques vinyles et albums collectionneurs. Une richesse musicale intemporelle.",
-  },
-  {
-    slug: "bd",
-    label: "BD",
-    image: "/objects/bd.png",
-    description: "Bandes dessinées et comics rares. Des éditions limitées et collector.",
-  },
-  {
-    slug: "mobilier",
-    label: "Mobilier",
-    image: "/objects/mobilier.jpg",
-    description: "Meubles anciens et modernes. Des pièces de caractère pour votre intérieur.",
-  },
-  {
-    slug: "photographie",
-    label: "Photographie",
-    image: "/objects/photographie.jpg",
-    description: "Appareils photo vintage et photographies d'époque. L'art de la capture d'image.",
-  },
-  {
-    slug: "instruments",
-    label: "Instruments",
-    image: "/objects/instruments.jpg",
-    description: "Instruments de musique rares et anciens. Pour les musiciens et passionnés.",
-  },
-];
-
-export function getCategoryBySlug(slug: string): Category | undefined {
-  return CATEGORIES.find((cat) => cat.slug === decodeURIComponent(slug));
+export interface Category {
+  id: number | string
+  name: string
+  slug: string
+  description?: string
+  isActive: boolean
+  order?: number
 }
 
-export function getAllCategorySlugs(): string[] {
-  return CATEGORIES.map((cat) => cat.slug);
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+
+/**
+ * Récupère toutes les catégories actives depuis l'API
+ */
+export async function getCategories(): Promise<Category[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/categories?where[isActive][equals]=true&sort=order`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) {
+      console.error('Failed to fetch categories:', response.statusText)
+      return []
+    }
+
+    const data = await response.json()
+    return data.docs || []
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+    return []
+  }
+}
+
+/**
+ * Récupère une catégorie par son slug
+ */
+export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  try {
+    const response = await fetch(
+      `${API_URL}/api/categories?where[slug][equals]=${slug}&limit=1`,
+      {
+        cache: 'no-store',
+      }
+    )
+
+    if (!response.ok) {
+      return null
+    }
+
+    const data = await response.json()
+    return data.docs?.[0] || null
+  } catch (error) {
+    console.error('Error fetching category:', error)
+    return null
+  }
+}
+
+/**
+ * Formate les catégories pour un select (avec option "Toutes")
+ */
+export function formatCategoriesForSelect(
+  categories: Category[],
+  includeAll: boolean = false
+): Array<{ value: string; label: string }> {
+  const options = categories.map((cat) => ({
+    value: cat.slug,
+    label: cat.name,
+  }))
+
+  if (includeAll) {
+    return [{ value: 'all', label: 'Toutes les catégories' }, ...options]
+  }
+
+  return options
+}
+
+/**
+ * Trouve le nom d'une catégorie depuis son slug
+ */
+export function getCategoryName(categories: Category[], slug: string): string {
+  const category = categories.find((cat) => cat.slug === slug)
+  return category?.name || slug
 }

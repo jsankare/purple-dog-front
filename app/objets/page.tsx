@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
 import Link from 'next/link';
 import { ArrowLeft, Search, SlidersHorizontal, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { getCategories, formatCategoriesForSelect, getCategoryName, type Category } from '@/lib/categories';
 
 interface Object {
   id: string;
@@ -124,6 +124,8 @@ function CountdownTimer({ endDate }: { endDate: string }) {
 export default function ObjectsPage() {
   const [objects, setObjects] = useState<Object[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<Array<{ value: string; label: string }>>([]);
+  const [apiCategories, setApiCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSaleMode, setSelectedSaleMode] = useState('all');
@@ -132,15 +134,21 @@ export default function ObjectsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [bidAmount, setBidAmount] = useState<{ [key: string]: string }>({});
   const [showBidInput, setShowBidInput] = useState<{ [key: string]: boolean }>({});
+  const [showBuyModal, setShowBuyModal] = useState<{ id: string; price: number } | null>(null);
+  const [buyLoading, setBuyLoading] = useState(false);
 
   useEffect(() => {
     fetchObjects();
+    fetchCategoriesData();
   }, []);
 
-  const [showBuyModal, setShowBuyModal] = useState<{id: string, price: number} | null>(null);
-  const [buyLoading, setBuyLoading] = useState(false);
+  const fetchCategoriesData = async () => {
+    const cats = await getCategories();
+    setApiCategories(cats);
+    setCategories(formatCategoriesForSelect(cats, true));
+  };
 
-  const handleQuickBuy = (e: React.MouseEvent, objectId: string, price: number) => {
+  const handleQuickBuy = async (e: React.MouseEvent, objectId: string, price: number) => {
     e.preventDefault();
     e.stopPropagation();
     setShowBuyModal({id: objectId, price});
@@ -243,23 +251,6 @@ export default function ObjectsPage() {
       setLoading(false);
     }
   };
-
-  const categories = [
-    { value: 'all', label: 'Toutes les catégories' },
-    { value: 'bijoux-montres', label: 'Bijoux & montres' },
-    { value: 'meubles-anciens', label: 'Meubles anciens' },
-    { value: 'objets-art-tableaux', label: 'Objets d\'art & tableaux' },
-    { value: 'objets-collection', label: 'Objets de collection' },
-    { value: 'vins-spiritueux', label: 'Vins & spiritueux' },
-    { value: 'instruments-musique', label: 'Instruments de musique' },
-    { value: 'livres-manuscrits', label: 'Livres & manuscrits' },
-    { value: 'mode-luxe', label: 'Mode & luxe' },
-    { value: 'horlogerie-pendules', label: 'Horlogerie' },
-    { value: 'photographies-vintage', label: 'Photographies' },
-    { value: 'vaisselle-argenterie', label: 'Vaisselle & argenterie' },
-    { value: 'sculptures-decoratifs', label: 'Sculptures' },
-    { value: 'vehicules-collection', label: 'Véhicules de collection' },
-  ];
 
   const filteredObjects = objects.filter(obj => {
     const matchesSearch = obj.name.toLowerCase().includes(searchQuery.toLowerCase());
