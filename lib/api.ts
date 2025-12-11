@@ -179,10 +179,39 @@ export const authAPI = {
     acceptedMandate?: boolean;
     newsletterSubscription?: boolean;
   }) => {
-    return apiCall('/api/users/register', {
+    const response = await fetch(`${API_BASE_URL}/api/users`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.errors?.[0]?.message || result.error || 'Erreur lors de l\'inscription');
+    }
+
+    try {
+      const loginResult = await authAPI.login({
+        email: data.email,
+        password: data.password,
+      });
+      
+      return {
+        success: true,
+        user: result.doc || result.user || loginResult.user,
+        token: loginResult.token,
+      };
+    } catch (loginError) {
+      return {
+        success: true,
+        user: result.doc || result.user,
+        message: 'Compte créé. Veuillez vous connecter.',
+      };
+    }
   },
 
   login: async (data: { email: string; password: string }) => {
