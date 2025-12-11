@@ -1,5 +1,34 @@
 // Configuration de l'API Payload CMS 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'; 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
+// Helper pour les appels API
+async function apiCall(endpoint: string, options?: RequestInit) {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...((options?.headers as Record<string, string>) || {}),
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+    credentials: 'include',
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Une erreur est survenue');
+  }
+
+  return data;
+}
 
 // Créer un objet à vendre
 export async function createSaleItem(data: {
@@ -127,9 +156,7 @@ export async function submitReview(data: {
   }
 }
 
-    return data;
-  },
-
+export const authAPI = {
   logout: async () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');

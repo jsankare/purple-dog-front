@@ -1,4 +1,3 @@
-import Image from "next/image"; 
 import HeroBandeau from "@/app/components/marketing/HeroBandeau";
 import CategoriesGrid from "@/app/components/marketing/CategoriesGrid";
 import Presentation from "@/app/components/marketing/Presentation";
