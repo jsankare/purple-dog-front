@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, use } from 'react';
-import Link from 'next/link';
+import Link from 'next/link'; 
 import { ArrowLeft, Clock, ChevronLeft, ChevronRight, Package, FileText, User, Heart, Eye } from 'lucide-react';
 
 interface ObjectDetails {
