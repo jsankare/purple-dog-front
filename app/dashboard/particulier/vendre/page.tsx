@@ -4,27 +4,6 @@ import Link from "next/link";
 export default function VendreObjet() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image 
-              src="/purple-dog-logo.svg" 
-              alt="Purple Dog Logo" 
-              width={150} 
-              height={70}
-              className="h-12 w-auto"
-            />
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard/particulier" className="text-sm hover:underline" style={{ color: '#4A3866' }}>
-              ← Retour au dashboard
-            </Link>
-            <span className="text-sm text-gray-600">Bonjour, <strong>Jean Dupont</strong></span>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Page Title */}
         <div className="mb-8">
