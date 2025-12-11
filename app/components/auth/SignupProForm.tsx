@@ -79,6 +79,22 @@ export default function SignupProForm() {
 
     setLoading(true);
     try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const formData = new FormData();
+      formData.append('file', officialDoc);
+
+      const uploadResponse = await fetch(`${API_URL}/api/media`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Erreur lors de l\'upload du document');
+      }
+
+      const uploadData = await uploadResponse.json();
+      const documentId = uploadData.doc.id;
+
       await authAPI.register({
         email: form.email,
         password: form.password,
@@ -93,6 +109,7 @@ export default function SignupProForm() {
         },
         companyName: form.companyName,
         siret: form.siret,
+        officialDocument: documentId,
         website: form.website || undefined,
         acceptedTerms: form.cgvAccepted,
         acceptedMandate: form.mandateAccepted,
@@ -298,6 +315,7 @@ export default function SignupProForm() {
                   Fichier sélectionné : {officialDoc.name}
                 </div>
               )}
+              <p className="text-xs text-neutral-500 mt-1">Formats acceptés : PDF, JPG, PNG</p>
             </div>
 
             <div>
