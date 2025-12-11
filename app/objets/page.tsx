@@ -149,36 +149,45 @@ export default function ObjectsPage() {
   const handleQuickBuy = async (e: React.MouseEvent, objectId: string, price: number) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm(`Confirmer l'achat pour ${price.toLocaleString('fr-FR')} € ?`)) {
-      return;
-    }
+    setShowBuyModal({id: objectId, price});
+  };
+
+  const confirmBuy = async () => {
+    if (!showBuyModal) return;
+    setBuyLoading(true);
     try {
-      // Récupérer l'id utilisateur connecté (à adapter selon ton auth)
       const buyerId = localStorage.getItem('userId');
       if (!buyerId) {
         alert('Utilisateur non connecté');
+        setBuyLoading(false);
+        setShowBuyModal(null);
         return;
       }
       const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
       const response = await fetch(`${API_URL}/stripe/object-purchase`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ objectId, buyerId }),
+        body: JSON.stringify({ objectId: showBuyModal.id, buyerId }),
       });
-        const data = await response.json();
-        console.log('Réponse Stripe object-purchase:', data);
+      const data = await response.json();
       if (!response.ok || !data.sessionId || !data.publishableKey) {
         alert(data.error || 'Erreur lors de la création de la session Stripe');
+        setBuyLoading(false);
+        setShowBuyModal(null);
         return;
       }
       if (data.url) {
         window.location.href = data.url;
       } else {
         alert('Erreur Stripe: URL de paiement manquante');
+        setBuyLoading(false);
+        setShowBuyModal(null);
       }
     } catch (error: any) {
       console.error('Erreur lors de l\'achat:', error);
       alert('Erreur lors de l\'achat: ' + (error?.message || ''));
+      setBuyLoading(false);
+      setShowBuyModal(null);
     }
   };
 
@@ -226,7 +235,7 @@ export default function ObjectsPage() {
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const response = await fetch(`${API_URL}/api/objects?where[status][equals]=active&limit=100`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -286,6 +295,39 @@ export default function ObjectsPage() {
   });
 
   return (
+    <>
+      {/* Modale d'achat */}
+      {showBuyModal && (
+        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/40${buyLoading ? ' cursor-wait' : ''}`}>
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full text-center">
+            <h2 className="text-xl font-bold mb-4">Confirmer l'achat</h2>
+            <p className="mb-6 text-neutral-700">Voulez-vous acheter cet article pour <span className="font-bold text-[#4B2377]">{showBuyModal.price.toLocaleString('fr-FR')} €</span> ?</p>
+            <div className="flex gap-4 justify-center">
+              <button
+                className="px-6 py-2 bg-[#4B2377] text-white rounded hover:bg-purple-700 font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                onClick={confirmBuy}
+                disabled={buyLoading}
+              >
+                {buyLoading ? (
+                  <>
+                    <span className="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    <span>Chargement...</span>
+                  </>
+                ) : (
+                  'Confirmer'
+                )}
+              </button>
+              <button
+                className="px-6 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 font-medium"
+                onClick={() => setShowBuyModal(null)}
+                disabled={buyLoading}
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
@@ -610,5 +652,7 @@ export default function ObjectsPage() {
         )}
       </div>
     </div>
+    {/* ...existing code... */}
+    </>
   );
 }

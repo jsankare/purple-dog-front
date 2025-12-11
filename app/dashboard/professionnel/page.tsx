@@ -27,9 +27,28 @@ export default function DashboardProfessionnel() {
     totalSales: 45,
     revenue: 125000
   });
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    loadSales();
+    const checkAuthAndRole = async () => {
+      try {
+        const res = await import("@/lib/api");
+        const user = await res.authAPI.me();
+        if (!user || !user.user) {
+          window.location.href = "/login";
+          return;
+        }
+        if (user.user.role !== "professionnel") {
+          window.location.href = "/dashboard/particulier";
+          return;
+        }
+        setCheckingAuth(false);
+        loadSales();
+      } catch (err) {
+        window.location.href = "/login";
+      }
+    };
+    checkAuthAndRole();
   }, []);
 
   const loadSales = async () => {
@@ -71,6 +90,13 @@ export default function DashboardProfessionnel() {
     }
   };
 
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="inline-block w-12 h-12 border-4 border-neutral-200 border-t-[#4B2377] rounded-full animate-spin"></div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
       <div className="max-w-7xl mx-auto">
