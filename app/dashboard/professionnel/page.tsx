@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Plus, Package, User, Star, ShoppingCart, Eye, ChevronRight, Heart } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Plus, Package, User, Star, ShoppingCart, Eye, ChevronRight, Heart, AlertCircle } from "lucide-react";
 
 interface SaleItem {
   id: string;
@@ -20,8 +21,10 @@ interface SaleItem {
 }
 
 export default function DashboardProfessionnel() {
+  const router = useRouter();
   const [saleItems, setSaleItems] = useState<SaleItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [accessDenied, setAccessDenied] = useState(false);
   const [stats] = useState({
     objectsForSale: 12,
     totalSales: 45,
@@ -35,6 +38,32 @@ export default function DashboardProfessionnel() {
   const loadSales = async () => {
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      
+      // Vérifier l'utilisateur connecté et son rôle
+      const userResponse = await fetch(`${API_URL}/api/profile`, {
+        credentials: 'include',
+      });
+      
+      if (!userResponse.ok) {
+        console.error('Utilisateur non connecté');
+        router.push('/login');
+        return;
+      }
+      
+      const userData = await userResponse.json();
+      console.log('Données utilisateur:', userData);
+      
+      // Vérifier le rôle de l'utilisateur
+      const userRole = userData.profile?.role || userData.user?.role || userData.role;
+      
+      // Dashboard professionnel accessible uniquement par "professionnel" ou "admin"
+      if (userRole !== 'professionnel' && userRole !== 'admin') {
+        console.error('Accès refusé. Rôle requis: professionnel ou admin. Rôle actuel:', userRole);
+        setAccessDenied(true);
+        setLoading(false);
+        return;
+      }
+      
       const response = await fetch(`${API_URL}/api/objects?limit=10`, {
         credentials: 'include',
       });
@@ -70,6 +99,41 @@ export default function DashboardProfessionnel() {
       default: return status;
     }
   };
+
+  // Écran d'accès refusé
+  if (accessDenied) {
+    return (
+      <div className="min-h-screen bg-[#F9F3FF] flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white border border-neutral-200 p-8 text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <AlertCircle className="w-10 h-10 text-red-600" />
+          </div>
+          <h1 className="text-2xl font-serif text-neutral-900 mb-2">
+            Accès refusé
+          </h1>
+          <p className="text-neutral-600 mb-6">
+            Vous n'avez pas les droits nécessaires pour accéder au dashboard professionnel.
+            <br />
+            Seuls les professionnels et administrateurs peuvent y accéder.
+          </p>
+          <div className="flex gap-3">
+            <Link
+              href="/"
+              className="flex-1 px-6 py-3 bg-[#4B2377] hover:bg-purple-700 text-white font-medium rounded transition-colors"
+            >
+              Retour à l'accueil
+            </Link>
+            <Link
+              href="/dashboard/particulier"
+              className="flex-1 px-6 py-3 border-2 border-[#4B2377] text-[#4B2377] font-medium rounded hover:bg-purple-50 transition-colors"
+            >
+              Dashboard Particulier
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
