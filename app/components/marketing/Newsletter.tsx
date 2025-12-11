@@ -14,15 +14,19 @@ export default function Newsletter() {
     setError("");
 
     try {
-      // Simuler l'appel API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Mailchimp
+      const formData = new FormData();
+      formData.append("EMAIL", email);
+      formData.append("b_c9ba012c5c7f4be2ca9cbabfc_bc78c57117", ""); // Champ honeypot anti-bot
 
-      // TODO: Remplacer par vrai appel API
-      // const response = await fetch('/api/newsletter', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email })
-      // });
+      const response = await fetch(
+        "https://gmail.us15.list-manage.com/subscribe/post?u=c9ba012c5c7f4be2ca9cbabfc&id=bc78c57117&f_id=00ebc2e1f0",
+        {
+          method: "POST",
+          body: formData,
+          mode: "no-cors",
+        },
+      );
 
       setSuccess(true);
       setEmail("");
