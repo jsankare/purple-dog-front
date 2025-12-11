@@ -221,10 +221,14 @@ export const authAPI = {
       body: JSON.stringify(data),
     });
     
-    if (result.token && typeof window !== 'undefined') {
-      localStorage.setItem('token', result.token);
+    if (typeof window !== 'undefined') {
+      if (result.token) {
+        localStorage.setItem('token', result.token);
+      }
+      if (result.user?.id) {
+        localStorage.setItem('userId', result.user.id);
+      }
     }
-    
     return result;
   },
 

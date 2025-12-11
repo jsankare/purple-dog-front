@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
 import Link from 'next/link';
 import { ArrowLeft, Search, SlidersHorizontal, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 
@@ -139,17 +140,36 @@ export default function ObjectsPage() {
   const handleQuickBuy = async (e: React.MouseEvent, objectId: string, price: number) => {
     e.preventDefault();
     e.stopPropagation();
-    
     if (!confirm(`Confirmer l'achat pour ${price.toLocaleString('fr-FR')} € ?`)) {
       return;
     }
-
     try {
-      // TODO: Implémenter l'appel API pour l'achat
-      alert('Achat en cours... (API à implémenter)');
-    } catch (error) {
+      // Récupérer l'id utilisateur connecté (à adapter selon ton auth)
+      const buyerId = localStorage.getItem('userId');
+      if (!buyerId) {
+        alert('Utilisateur non connecté');
+        return;
+      }
+      const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
+      const response = await fetch(`${API_URL}/stripe/object-purchase`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ objectId, buyerId }),
+      });
+        const data = await response.json();
+        console.log('Réponse Stripe object-purchase:', data);
+      if (!response.ok || !data.sessionId || !data.publishableKey) {
+        alert(data.error || 'Erreur lors de la création de la session Stripe');
+        return;
+      }
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Erreur Stripe: URL de paiement manquante');
+      }
+    } catch (error: any) {
       console.error('Erreur lors de l\'achat:', error);
-      alert('Erreur lors de l\'achat');
+      alert('Erreur lors de l\'achat: ' + (error?.message || ''));
     }
   };
 
@@ -428,16 +448,20 @@ export default function ObjectsPage() {
               <Link
                 key={obj.id}
                 href={`/objets/${obj.id}`}
-                className="bg-white border border-neutral-200 hover:border-[#4B2377] transition-all hover:shadow-md group flex flex-col cursor-pointer"
+                className="bg-white border border-neutral-200 hover:border-[#4B2377] transition-all hover:shadow-md group flex flex-col cursor-pointer relative"
               >
                 <div className="aspect-[4/3] bg-neutral-100 overflow-hidden relative">
                   <PhotoCarousel photos={obj.photos || []} />
-                  
                   <div className="absolute top-2 right-2 z-10">
                     <span className="inline-block px-2 py-1 text-xs bg-white/95 text-[#4B2377] font-medium shadow-sm">
                       {obj.saleMode === 'auction' ? 'Enchères' : 'Vente rapide'}
                     </span>
                   </div>
+                  {obj.status === 'sold' && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <span className="inline-block px-2 py-1 text-xs bg-red-600 text-white font-bold shadow">VENDU</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-3 flex-1 flex flex-col">
@@ -557,10 +581,11 @@ export default function ObjectsPage() {
                           {obj.price.toLocaleString('fr-FR')} €
                         </p>
                         <button
-                          onClick={(e) => handleQuickBuy(e, obj.id, obj.price)}
-                          className="w-full px-3 py-2 bg-[#4B2377] hover:bg-purple-700 text-white text-sm font-medium transition-colors"
+                          disabled={obj.status === 'sold'}
+                          onClick={(e) => obj.status !== 'sold' && handleQuickBuy(e, obj.id, obj.price)}
+                          className={`w-full px-3 py-2 text-white text-sm font-medium transition-colors ${obj.status === 'sold' ? 'bg-neutral-400 cursor-not-allowed' : 'bg-[#4B2377] hover:bg-purple-700'}`}
                         >
-                          Acheter maintenant
+                          {obj.status === 'sold' ? 'Vendu' : 'Acheter maintenant'}
                         </button>
                       </div>
                     )}

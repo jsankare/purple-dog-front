@@ -200,13 +200,31 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
 
   const handleQuickBuy = async () => {
     if (!object) return;
-    
     if (!confirm(`Confirmer l'achat pour ${object.price.toLocaleString('fr-FR')} € ?`)) {
       return;
     }
 
     try {
-      alert('Achat en cours... (API à implémenter)');
+      // Récupérer l'ID utilisateur (exemple: depuis localStorage ou cookie)
+      const buyerId = localStorage.getItem('userId');
+      if (!buyerId) {
+        alert('Utilisateur non connecté');
+        return;
+      }
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${API_URL}/api/stripe/object-purchase`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ objectId: object.id, buyerId }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.url) {
+        alert('Erreur lors de la création de la session Stripe');
+        return;
+      }
+      window.location.href = data.url;
     } catch (error) {
       console.error('Erreur lors de l\'achat:', error);
       alert('Erreur lors de l\'achat');
