@@ -140,8 +140,8 @@ export default function DashboardParticulier() {
               <ChevronRight className="w-4 h-4 ml-1" />
             </div>
           </Link>
-
-          {/* Mes objets */}
+ 
+          {/* Mes objets */} 
           <div className="bg-white border border-neutral-200 p-6">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center">

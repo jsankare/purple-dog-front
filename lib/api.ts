@@ -1,8 +1,8 @@
-// Configuration de l'API Payload CMS 
+// Configuration de l'API Payload CMS  
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-// Helper pour les appels API
+// Helper pour les appels API 
 async function apiCall(endpoint: string, options?: RequestInit) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   
