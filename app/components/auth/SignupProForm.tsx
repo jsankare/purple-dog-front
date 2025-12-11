@@ -29,6 +29,7 @@ export default function SignupProForm() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [step, setStep] = useState(1);
+  const [officialDoc, setOfficialDoc] = useState<File | null>(null);
 
   function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -71,6 +72,9 @@ export default function SignupProForm() {
     }
     if (!form.rgpdAccepted) {
       return setErr("Vous devez accepter la politique RGPD.");
+    }
+    if (!officialDoc) {
+      return setErr("Veuillez ajouter un document officiel (K-Bis, INSEE, etc.)");
     }
 
     setLoading(true);
@@ -271,6 +275,29 @@ export default function SignupProForm() {
                 </div>
                 <p className="text-xs text-neutral-500 mt-1">14 chiffres</p>
               </div>
+            </div>
+
+            {/* Ajout du champ document officiel */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Document officiel (K-Bis, avis de situation INSEE, etc.) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={e => {
+                  if (e.target.files && e.target.files[0]) {
+                    setOfficialDoc(e.target.files[0]);
+                  }
+                }}
+                className="w-full px-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors"
+                required
+              />
+              {officialDoc && (
+                <div className="mt-2 text-sm text-neutral-700">
+                  Fichier sélectionné : {officialDoc.name}
+                </div>
+              )}
             </div>
 
             <div>
