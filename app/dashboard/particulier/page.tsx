@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Plus, Package, User, Star, Eye, ChevronRight, Clock } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Plus, Package, User, Star, Eye, ChevronRight, Clock, AlertCircle } from "lucide-react";
 
 interface SaleItem {
   id: string;
@@ -19,9 +20,10 @@ interface SaleItem {
 }
 
 export default function DashboardParticulier() {
+  const router = useRouter();
   const [saleItems, setSaleItems] = useState<SaleItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
     const checkAuthAndRole = async () => {
@@ -59,12 +61,23 @@ export default function DashboardParticulier() {
       
       if (!userResponse.ok) {
         console.error('Utilisateur non connecté');
-        setLoading(false);
+        router.push('/login');
         return;
       }
       
       const userData = await userResponse.json();
       console.log('Données utilisateur:', userData);
+      
+      // Vérifier le rôle de l'utilisateur
+      const userRole = userData.profile?.role || userData.user?.role || userData.role;
+      
+      // Dashboard particulier accessible uniquement par "particulier" ou "admin"
+      if (userRole !== 'particulier' && userRole !== 'admin') {
+        console.error('Accès refusé. Rôle requis: particulier ou admin. Rôle actuel:', userRole);
+        setAccessDenied(true);
+        setLoading(false);
+        return;
+      }
       
       // L'API retourne { success: true, profile: { id, email, ... } }
       const userId = userData.profile?.id || userData.user?.id || userData.id;
@@ -116,13 +129,41 @@ export default function DashboardParticulier() {
     }
   };
 
-  if (checkingAuth) {
+  // Écran d'accès refusé
+  if (accessDenied) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="inline-block w-12 h-12 border-4 border-neutral-200 border-t-[#4B2377] rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-[#F9F3FF] flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white border border-neutral-200 p-8 text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <AlertCircle className="w-10 h-10 text-red-600" />
+          </div>
+          <h1 className="text-2xl font-serif text-neutral-900 mb-2">
+            Accès refusé
+          </h1>
+          <p className="text-neutral-600 mb-6">
+            Vous n'avez pas les droits nécessaires pour accéder au dashboard particulier.
+            <br />
+            Seuls les particuliers et administrateurs peuvent y accéder.
+          </p>
+          <div className="flex gap-3">
+            <Link
+              href="/"
+              className="flex-1 px-6 py-3 bg-[#4B2377] hover:bg-purple-700 text-white font-medium rounded transition-colors"
+            >
+              Retour à l'accueil
+            </Link>
+            <Link
+              href="/dashboard/professionnel"
+              className="flex-1 px-6 py-3 border-2 border-[#4B2377] text-[#4B2377] font-medium rounded hover:bg-purple-50 transition-colors"
+            >
+              Dashboard Pro
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
+
   return (
     <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
       <div className="max-w-7xl mx-auto">
