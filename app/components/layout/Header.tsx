@@ -56,6 +56,12 @@ export default function Header() {
 
           <nav className="hidden md:flex items-center gap-8">
             <Link 
+              href="/objets" 
+              className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors font-medium"
+            >
+              Objets
+            </Link>
+            <Link 
               href="/encheres" 
               className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors font-medium"
             >
@@ -126,6 +132,13 @@ export default function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-neutral-200">
             <nav className="flex flex-col gap-4">
+              <Link 
+                href="/objets" 
+                className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Objets
+              </Link>
               <Link 
                 href="/encheres" 
                 className="text-sm text-neutral-600 hover:text-[#4B2377] transition-colors py-2"
