@@ -51,7 +51,7 @@ export default function ChangeEmailPage() {
     setSubmitting(true);
 
     try {
-      await profileAPI.changeEmail(formData.newEmail, formData.password);
+      await profileAPI.changeEmail({ newEmail: formData.newEmail, password: formData.password });
       setMessage({ type: 'success', text: 'Un email de vérification a été envoyé à votre nouvelle adresse' });
       setFormData({ ...formData, newEmail: '', confirmEmail: '', password: '' });
     } catch (err: any) {

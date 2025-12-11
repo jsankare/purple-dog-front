@@ -72,7 +72,7 @@ export default function ChangePasswordPage() {
     setSubmitting(true);
 
     try {
-      await profileAPI.changePassword(formData.currentPassword, formData.newPassword);
+      await profileAPI.changePassword({ currentPassword: formData.currentPassword, newPassword: formData.newPassword });
       setMessage({ type: 'success', text: 'Mot de passe modifié avec succès' });
       setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setPasswordStrength({
