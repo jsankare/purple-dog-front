@@ -1,5 +1,5 @@
 // Configuration de l'API Payload CMS 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'; 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 // Créer un objet à vendre
 export async function createSaleItem(data: {
@@ -40,10 +40,10 @@ export async function createSaleItem(data: {
 // Récupérer les objets en vente de l'utilisateur
 export async function getUserSales(userId?: string) {
   try {
-    const url = userId 
+    const url = userId
       ? `${API_URL}/api/sales?where[user][equals]=${userId}`
       : `${API_URL}/api/sales`;
-    
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -127,9 +127,37 @@ export async function submitReview(data: {
   }
 }
 
-    return data;
-  },
+// Helper function for API calls
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
+async function apiCall(endpoint: string, options?: RequestInit) {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options?.headers as Record<string, string> || {}),
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+    credentials: 'include',
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'API request failed');
+  }
+
+  return data;
+}
+
+export const authAPI = {
   logout: async () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
@@ -157,13 +185,13 @@ export const usersAPI = {
 export const objectsAPI = {
   createObject: async (formData: FormData) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    
+
     const headers: Record<string, string> = {};
-    
+
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     const response = await fetch(`${API_BASE_URL}/api/objects/create`, {
       method: 'POST',
       headers,
