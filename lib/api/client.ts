@@ -1,6 +1,5 @@
 // lib/api/client.ts
-const RAW_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
-const BASE = RAW_BASE.replace(/\/$/, "");
+const BASE = "/api";
 
 async function request(path: string, init?: RequestInit) {
   const url = `${BASE}${path}`;

@@ -91,11 +91,11 @@ export default function DashboardProfessionnel() {
             Dashboard Professionnel
           </h1>
           <div className="w-24 h-px bg-[#4B2377] mb-4"></div>
-          <p className="text-neutral-600">
+          <p className="text-neutral-600"> 
             Gérez votre activité professionnelle sur Purple Dog
           </p>
         </div>
-
+ 
         {/* Statistiques rapides */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-white border border-neutral-200 p-6">

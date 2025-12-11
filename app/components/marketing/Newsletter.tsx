@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState } from "react"; 
 import { Mail, Send, CheckCircle } from "lucide-react";
 
-export default function Newsletter() {
+export default function Newsletter() { 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);

@@ -1,11 +1,11 @@
 "use client";
-
+ 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authAPI } from "@/lib/api";
 import { Mail, Lock, User, MapPin, Home, Building2, FileText, Globe, ArrowRight, ArrowLeft, Check } from "lucide-react";
 
-export default function SignupProForm() {
+export default function SignupProForm() { 
   const router = useRouter();
   const [form, setForm] = useState({
     firstName: "",
