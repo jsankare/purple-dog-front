@@ -134,6 +134,8 @@ export default function ObjectsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [bidAmount, setBidAmount] = useState<{ [key: string]: string }>({});
   const [showBidInput, setShowBidInput] = useState<{ [key: string]: boolean }>({});
+  const [showBuyModal, setShowBuyModal] = useState<{ id: string; price: number } | null>(null);
+  const [buyLoading, setBuyLoading] = useState(false);
 
   useEffect(() => {
     fetchObjects();
