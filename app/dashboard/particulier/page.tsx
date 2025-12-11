@@ -29,12 +29,41 @@ export default function DashboardParticulier() {
   const loadSales = async () => {
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const response = await fetch(`${API_URL}/api/objects?limit=10`, {
+      
+      // D'abord, récupérer l'utilisateur connecté
+      const userResponse = await fetch(`${API_URL}/api/profile`, {
         credentials: 'include',
       });
       
+      if (!userResponse.ok) {
+        console.error('Utilisateur non connecté');
+        setLoading(false);
+        return;
+      }
+      
+      const userData = await userResponse.json();
+      console.log('Données utilisateur:', userData);
+      
+      // L'API retourne { success: true, profile: { id, email, ... } }
+      const userId = userData.profile?.id || userData.user?.id || userData.id;
+      
+      if (!userId) {
+        console.error('ID utilisateur introuvable. Structure de la réponse:', userData);
+        setLoading(false);
+        return;
+      }
+      
+      console.log('ID utilisateur trouvé:', userId);
+      
+      // Charger uniquement les objets de l'utilisateur connecté
+      const response = await fetch(
+        `${API_URL}/api/objects?where[seller][equals]=${userId}&limit=100`,
+        { credentials: 'include' }
+      );
+      
       if (response.ok) {
         const data = await response.json();
+        console.log(`${data.docs?.length || 0} objets chargés`);
         setSaleItems(data.docs || []);
       }
     } catch (error) {
@@ -145,7 +174,7 @@ export default function DashboardParticulier() {
             </div>
           </Link>
 
-          {/* Donner son avis */} 
+          {/* Donner son avis */}
           <Link
             href="/feedback"
             className="bg-white border border-neutral-200 hover:border-[#4B2377] p-6 transition-all hover:shadow-md group"
@@ -212,8 +241,10 @@ export default function DashboardParticulier() {
               {saleItems.map((item) => (
                 <Link
                   key={item.id}
-                  href={`/objets/${item.id}`}
-                  className="bg-neutral-50 border border-neutral-200 hover:border-[#4B2377] transition-all hover:shadow-md group"
+                  href={`/dashboard/particulier/modifier/${item.id}`}
+                  className={`bg-neutral-50 border border-neutral-200 hover:border-[#4B2377] transition-all hover:shadow-md group ${
+                    item.status === 'sold' ? 'opacity-60 grayscale' : ''
+                  }`}
                 >
                   {/* Image */}
                   <div className="aspect-[4/3] bg-neutral-100 overflow-hidden relative">
@@ -221,7 +252,9 @@ export default function DashboardParticulier() {
                       <img
                         src={item.photos[0].photo.url}
                         alt={item.name}
-                        className="w-full h-full object-cover"
+                        className={`w-full h-full object-cover ${
+                          item.status === 'sold' ? 'grayscale' : ''
+                        }`}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-neutral-400">
@@ -229,8 +262,18 @@ export default function DashboardParticulier() {
                       </div>
                     )}
                     
-                    {/* Badge statut */}
-                    <div className="absolute top-2 right-2">
+                    {/* Badges */}
+                    <div className="absolute top-2 left-2 right-2 flex justify-between items-start gap-2">
+                      {/* Badge mode de vente */}
+                      <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${
+                        item.saleMode === 'auction' 
+                          ? 'bg-orange-100 text-orange-700 border border-orange-200' 
+                          : 'bg-blue-100 text-blue-700 border border-blue-200'
+                      }`}>
+                        {item.saleMode === 'auction' ? 'Enchère' : 'Vente directe'}
+                      </span>
+                      
+                      {/* Badge statut */}
                       <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${getStatusColor(item.status)}`}>
                         {getStatusLabel(item.status)}
                       </span>
@@ -249,19 +292,17 @@ export default function DashboardParticulier() {
                       </p>
                     </div>
 
-                    {item.saleMode === 'auction' && item.auctionConfig && (
-                      <div className="text-xs text-neutral-500 space-y-1">
-                        {item.auctionConfig.bidCount !== undefined && item.auctionConfig.bidCount > 0 && (
-                          <p>{item.auctionConfig.bidCount} enchère{item.auctionConfig.bidCount > 1 ? 's' : ''}</p>
-                        )}
-                        {item.views !== undefined && item.views > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Eye className="w-3 h-3" />
-                            <span>{item.views} vues</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    <div className="text-xs text-neutral-500 space-y-1">
+                      {item.saleMode === 'auction' && item.auctionConfig?.bidCount !== undefined && item.auctionConfig.bidCount > 0 && (
+                        <p>{item.auctionConfig.bidCount} enchère{item.auctionConfig.bidCount > 1 ? 's' : ''}</p>
+                      )}
+                      {item.views !== undefined && item.views > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          <span>{item.views} vues</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </Link>
               ))}
