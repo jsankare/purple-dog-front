@@ -1,4 +1,4 @@
-// Configuration de l'API Payload CMS 
+// Configuration de l'API Payload CMS
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 // Créer un objet à vendre
@@ -158,9 +158,59 @@ async function apiCall(endpoint: string, options?: RequestInit) {
 }
 
 export const authAPI = {
+  register: async (data: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    role?: string;
+    phone?: string;
+    address?: {
+      street?: string;
+      city?: string;
+      postalCode?: string;
+      country?: string;
+    };
+    companyName?: string;
+    siret?: string;
+    website?: string;
+    isOver18?: boolean;
+    acceptedGDPR?: boolean;
+    acceptedTerms?: boolean;
+    acceptedMandate?: boolean;
+    newsletterSubscription?: boolean;
+  }) => {
+    const result = await apiCall('/api/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    if (result.token && typeof window !== 'undefined') {
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('user', JSON.stringify(result.user));
+    }
+
+    return result;
+  },
+
+  login: async (data: { email: string; password: string }) => {
+    const result = await apiCall('/api/users/login', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    if (result.token && typeof window !== 'undefined') {
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('user', JSON.stringify(result.user));
+    }
+
+    return result;
+  },
+
   logout: async () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
     return apiCall('/api/users/logout', {
       method: 'POST',
@@ -206,5 +256,50 @@ export const objectsAPI = {
     }
 
     return data;
+  },
+};
+
+export const profileAPI = {
+  getProfile: async () => {
+    return apiCall('/api/profile');
+  },
+
+  updateProfile: async (data: any) => {
+    return apiCall('/api/profile/update', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  changeEmail: async (data: { newEmail: string; password: string }) => {
+    return apiCall('/api/profile/change-email', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  changePassword: async (data: { currentPassword: string; newPassword: string }) => {
+    return apiCall('/api/profile/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  getNotifications: async () => {
+    return apiCall('/api/profile/notifications');
+  },
+
+  updateNotifications: async (data: any) => {
+    return apiCall('/api/profile/notifications', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateBankDetails: async (bankData: any) => {
+    return apiCall('/api/profile/bank-details', {
+      method: 'PATCH',
+      body: JSON.stringify(bankData),
+    });
   },
 };
