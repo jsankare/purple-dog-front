@@ -148,27 +148,6 @@ export default function DashboardParticulier() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image 
-              src="/purple-dog-logo.svg" 
-              alt="Purple Dog Logo" 
-              width={150} 
-              height={70}
-              className="h-12 w-auto"
-            />
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Bonjour, <strong>Jean Dupont</strong></span>
-            <button className="px-4 py-2 text-sm rounded-lg hover:bg-gray-100" style={{ color: '#4A3866' }}>
-              Déconnexion
-            </button>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Page Title */}
         <div className="mb-8">
