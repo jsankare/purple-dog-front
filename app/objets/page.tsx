@@ -121,6 +121,7 @@ function CountdownTimer({ endDate }: { endDate: string }) {
   );
 }
 
+
 export default function ObjectsPage() {
   const [objects, setObjects] = useState<Object[]>([]);
   const [loading, setLoading] = useState(true);
@@ -133,8 +134,24 @@ export default function ObjectsPage() {
   const [bidAmount, setBidAmount] = useState<{ [key: string]: string }>({});
   const [showBidInput, setShowBidInput] = useState<{ [key: string]: boolean }>({});
 
+  // Ajout pour bloquer l'achat
+  const [userRole, setUserRole] = useState<string|null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
   useEffect(() => {
     fetchObjects();
+    // Vérifier le rôle utilisateur
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    setIsLoggedIn(!!token);
+    if (token) {
+      import('@/lib/api').then(({ authAPI }) => {
+        authAPI.me().then((res: any) => {
+          setUserRole(res?.user?.role || null);
+        }).catch(() => setUserRole(null));
+      });
+    } else {
+      setUserRole(null);
+    }
   }, []);
 
   const [showBuyModal, setShowBuyModal] = useState<{id: string, price: number} | null>(null);
@@ -625,13 +642,36 @@ export default function ObjectsPage() {
                         <p className="text-lg font-serif text-[#4B2377] font-bold mb-2">
                           {obj.price.toLocaleString('fr-FR')} €
                         </p>
-                        <button
-                          disabled={obj.status === 'sold'}
-                          onClick={(e) => obj.status !== 'sold' && handleQuickBuy(e, obj.id, obj.price)}
-                          className={`w-full px-3 py-2 text-white text-sm font-medium transition-colors ${obj.status === 'sold' ? 'bg-neutral-400 cursor-not-allowed' : 'bg-[#4B2377] hover:bg-purple-700'}`}
-                        >
-                          {obj.status === 'sold' ? 'Vendu' : 'Acheter maintenant'}
-                        </button>
+                        {/* Bloquer l'achat pour les particuliers et non connectés */}
+                        {obj.status === 'sold' ? (
+                          <button
+                            disabled
+                            className="w-full px-3 py-2 text-white text-sm font-medium bg-neutral-400 cursor-not-allowed"
+                          >
+                            Vendu
+                          </button>
+                        ) : !isLoggedIn ? (
+                          <button
+                            disabled
+                            className="w-full px-3 py-2 text-white text-sm font-medium bg-neutral-400 cursor-not-allowed"
+                          >
+                            Connectez-vous pour acheter
+                          </button>
+                        ) : userRole === 'particulier' ? (
+                          <button
+                            disabled
+                            className="w-full px-3 py-2 text-white text-sm font-medium bg-neutral-400 cursor-not-allowed"
+                          >
+                            Achat réservé aux professionnels
+                          </button>
+                        ) : (
+                          <button
+                            onClick={(e) => handleQuickBuy(e, obj.id, obj.price)}
+                            className="w-full px-3 py-2 bg-[#4B2377] hover:bg-purple-700 text-white text-sm font-medium transition-colors"
+                          >
+                            Acheter maintenant
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>

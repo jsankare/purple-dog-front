@@ -155,6 +155,25 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
   const [autoBidAmount, setAutoBidAmount] = useState('');
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [buyLoading, setBuyLoading] = useState(false);
+  // Ajout pour bloquer l'achat
+  const [userRole, setUserRole] = useState<string|null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    // ...existing code...
+    // Vérifier le rôle utilisateur
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    setIsLoggedIn(!!token);
+    if (token) {
+      import('@/lib/api').then(({ authAPI }) => {
+        authAPI.me().then((res: any) => {
+          setUserRole(res?.user?.role || null);
+        }).catch(() => setUserRole(null));
+      });
+    } else {
+      setUserRole(null);
+    }
+  }, [id]);
 
   useEffect(() => {
     fetchObjectDetails();
@@ -466,12 +485,29 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
                   </p>
                   <p className="text-sm text-neutral-500 mt-1">Prix fixe</p>
                 </div>
-                <button
-                  onClick={handleQuickBuy}
-                  className="w-full px-6 py-4 bg-[#4B2377] hover:bg-purple-700 text-white text-lg font-medium transition-colors"
-                >
-                  Acheter maintenant
-                </button>
+                {/* Bloquer l'achat pour les particuliers et non connectés */}
+                {!isLoggedIn ? (
+                  <button
+                    disabled
+                    className="w-full px-6 py-4 bg-neutral-400 text-white text-lg font-medium cursor-not-allowed"
+                  >
+                    Connectez-vous pour acheter
+                  </button>
+                ) : userRole === 'particulier' ? (
+                  <button
+                    disabled
+                    className="w-full px-6 py-4 bg-neutral-400 text-white text-lg font-medium cursor-not-allowed"
+                  >
+                    Achat réservé aux professionnels
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleQuickBuy}
+                    className="w-full px-6 py-4 bg-[#4B2377] hover:bg-purple-700 text-white text-lg font-medium transition-colors"
+                  >
+                    Acheter maintenant
+                  </button>
+                )}
               </div>
             )}
 
