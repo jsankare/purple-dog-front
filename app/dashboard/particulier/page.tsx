@@ -26,27 +26,6 @@ export default function DashboardParticulier() {
   const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
-    const checkAuthAndRole = async () => {
-      try {
-        const res = await import("@/lib/api");
-        const user = await res.authAPI.me();
-        if (!user || !user.user) {
-          window.location.href = "/login";
-          return;
-        }
-        if (user.user.role !== "particulier") {
-          window.location.href = "/dashboard/professionnel";
-          return;
-        }
-        setCheckingAuth(false);
-        loadSales();
-      } catch (err) {
-        window.location.href = "/login";
-      }
-    };
-    checkAuthAndRole();
-  }, []);
-  useEffect(() => {
     loadSales();
   }, []);
 
