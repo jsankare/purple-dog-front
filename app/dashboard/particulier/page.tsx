@@ -21,7 +21,29 @@ interface SaleItem {
 export default function DashboardParticulier() {
   const [saleItems, setSaleItems] = useState<SaleItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
+  useEffect(() => {
+    const checkAuthAndRole = async () => {
+      try {
+        const res = await import("@/lib/api");
+        const user = await res.authAPI.me();
+        if (!user || !user.user) {
+          window.location.href = "/login";
+          return;
+        }
+        if (user.user.role !== "particulier") {
+          window.location.href = "/dashboard/professionnel";
+          return;
+        }
+        setCheckingAuth(false);
+        loadSales();
+      } catch (err) {
+        window.location.href = "/login";
+      }
+    };
+    checkAuthAndRole();
+  }, []);
   useEffect(() => {
     loadSales();
   }, []);
@@ -65,6 +87,13 @@ export default function DashboardParticulier() {
     }
   };
 
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="inline-block w-12 h-12 border-4 border-neutral-200 border-t-[#4B2377] rounded-full animate-spin"></div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
       <div className="max-w-7xl mx-auto">

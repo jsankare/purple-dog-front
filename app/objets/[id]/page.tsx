@@ -153,6 +153,8 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
   const [bidAmount, setBidAmount] = useState('');
   const [showAutoBid, setShowAutoBid] = useState(false);
   const [autoBidAmount, setAutoBidAmount] = useState('');
+  const [showBuyModal, setShowBuyModal] = useState(false);
+  const [buyLoading, setBuyLoading] = useState(false);
 
   useEffect(() => {
     fetchObjectDetails();
@@ -198,17 +200,19 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
     return 1000;
   };
 
-  const handleQuickBuy = async () => {
-    if (!object) return;
-    if (!confirm(`Confirmer l'achat pour ${object.price.toLocaleString('fr-FR')} € ?`)) {
-      return;
-    }
+  const handleQuickBuy = () => {
+    setShowBuyModal(true);
+  };
 
+  const confirmBuy = async () => {
+    if (!object) return;
+    setBuyLoading(true);
     try {
-      // Récupérer l'ID utilisateur (exemple: depuis localStorage ou cookie)
       const buyerId = localStorage.getItem('userId');
       if (!buyerId) {
         alert('Utilisateur non connecté');
+        setBuyLoading(false);
+        setShowBuyModal(false);
         return;
       }
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -222,12 +226,16 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
       const data = await response.json();
       if (!response.ok || !data.url) {
         alert('Erreur lors de la création de la session Stripe');
+        setBuyLoading(false);
+        setShowBuyModal(false);
         return;
       }
       window.location.href = data.url;
     } catch (error) {
       console.error('Erreur lors de l\'achat:', error);
       alert('Erreur lors de l\'achat');
+      setBuyLoading(false);
+      setShowBuyModal(false);
     }
   };
 
@@ -298,6 +306,39 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
   const increment = getBidIncrement(currentPrice);
 
   return (
+    <>
+          {/* Modale d'achat */}
+          {showBuyModal && (
+            <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/40${buyLoading ? ' cursor-wait' : ''}`}>
+              <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full text-center">
+                <h2 className="text-xl font-bold mb-4">Confirmer l'achat</h2>
+                <p className="mb-6 text-neutral-700">Voulez-vous acheter cet article pour <span className="font-bold text-[#4B2377]">{object?.price.toLocaleString('fr-FR')} €</span> ?</p>
+                <div className="flex gap-4 justify-center">
+                  <button
+                    className="px-6 py-2 bg-[#4B2377] text-white rounded hover:bg-purple-700 font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                    onClick={confirmBuy}
+                    disabled={buyLoading}
+                  >
+                    {buyLoading ? (
+                      <>
+                        <span className="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        <span>Chargement...</span>
+                      </>
+                    ) : (
+                      'Confirmer'
+                    )}
+                  </button>
+                  <button
+                    className="px-6 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 font-medium"
+                    onClick={() => setShowBuyModal(false)}
+                    disabled={buyLoading}
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
     <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
@@ -504,5 +545,6 @@ export default function ObjectDetailPage({ params }: { params: Promise<{ id: str
         </div>
       </div>
     </div>
+    </>
   );
 }

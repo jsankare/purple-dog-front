@@ -20,10 +20,15 @@ export default function LoginPage() {
 
     try {
       const response = await authAPI.login({ email, password });
-      
-      if (response.token) {
+      if (response.token && response.user) {
         window.dispatchEvent(new Event('auth-change'));
-        router.push('/profile');
+        if (response.user.role === 'particulier') {
+          router.push('/dashboard/particulier');
+        } else if (response.user.role === 'professionnel') {
+          router.push('/dashboard/professionnel');
+        } else {
+          router.push('/profile');
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la connexion');
