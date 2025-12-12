@@ -11,6 +11,7 @@ interface User {
   firstName?: string
   lastName?: string
   subscriptionStatus?: string
+  subscriptionEndDate?: string
   _verified?: boolean
   canBid?: boolean
   canSell?: boolean

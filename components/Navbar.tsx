@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ModeToggle } from "@/components/mode-toggle"
+import { NotificationBadge } from "@/components/dashboard/NotificationBadge"
 import { LogOut, User, LayoutDashboard, ShoppingBag } from 'lucide-react'
 
 export function Navbar() {
@@ -54,6 +55,9 @@ export function Navbar() {
               ) : (
                 <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground">Particulier</Badge>
               )}
+              <Link href="/dashboard/mes-objets" className="hover:opacity-80 transition-opacity">
+                <NotificationBadge />
+              </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">

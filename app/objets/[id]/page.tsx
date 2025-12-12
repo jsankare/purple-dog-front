@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ArrowLeft, ShieldCheck, Heart, Share2, Loader2, Gavel } from 'lucide-react'
-import { AuctionTimer, BidForm, BidHistory, QuickSaleBuyButton } from '@/components/objects'
+import { AuctionTimer, BidForm, BidHistory, QuickSaleBuyButton, OfferForm } from '@/components/objects'
 import { objectsAPI, favoritesAPI } from '@/lib/api'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -19,6 +19,7 @@ export default function ObjetDetailPage() {
   const [object, setObject] = useState<any>(null)
   const [isFavorite, setIsFavorite] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   useEffect(() => {
@@ -27,8 +28,10 @@ export default function ObjetDetailPage() {
         const result = await objectsAPI.getById(params.id as string)
         console.log('GET Object details result:', result)
         setObject(result)
-      } catch (error) {
+        setError(null)
+      } catch (error: any) {
         console.error('Error fetching object:', error)
+        setError(error.message || 'Erreur lors du chargement de l\'objet')
       } finally {
         setIsLoading(false)
       }
@@ -79,10 +82,11 @@ export default function ObjetDetailPage() {
     )
   }
 
-  if (!object) {
+  if (error || !object) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <h1 className="text-2xl font-bold">Objet non trouvé</h1>
+        {error && <p className="text-muted-foreground mt-2">{error}</p>}
         <Link href="/catalogue">
           <Button className="mt-4">Retour au catalogue</Button>
         </Link>
@@ -300,9 +304,11 @@ export default function ObjetDetailPage() {
                     objectId={object.id}
                     price={object.quickSalePrice || 0}
                   />
-                  <Button size="lg" variant="outline" className="w-full">
-                    Faire une offre
-                  </Button>
+                  <OfferForm
+                    objectId={object.id}
+                    objectName={object.name}
+                    currentPrice={object.quickSalePrice || 0}
+                  />
                   <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
                     <ShieldCheck className="h-3 w-3" /> Paiement sécurisé & Protection acheteur
                   </p>

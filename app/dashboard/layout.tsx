@@ -1,5 +1,6 @@
 'use client'
 
+import { TrialBanner } from '@/components/subscription'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -106,6 +107,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main Content - Offset for fixed sidebar */}
       <main className="flex-1 md:ml-64 py-8 px-6 md:px-8">
+        <TrialBanner />
         {children}
       </main>
     </div>
