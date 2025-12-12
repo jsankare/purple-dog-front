@@ -436,7 +436,7 @@ export const bidsAPI = {
     return apiCall('/api/bids', {
       method: 'POST',
       body: JSON.stringify({
-        object: data.objectId,
+        objectId: data.objectId,
         amount: data.amount,
         isAutoBid: data.isAutoBid,
       }),

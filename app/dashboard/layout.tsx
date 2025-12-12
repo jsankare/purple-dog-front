@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { LayoutDashboard, ShoppingBag, PlusCircle, User, MessageSquare, LogOut } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, PlusCircle, User, MessageSquare, LogOut, Gavel, ShoppingCart, CreditCard } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
 const sidebarItems = [
@@ -13,6 +13,18 @@ const sidebarItems = [
     title: "Vue d'ensemble",
     href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Mes enchères",
+    href: "/dashboard/mes-encheres",
+    icon: Gavel,
+    proOnly: true, // Only for professionals
+  },
+  {
+    title: "Mes achats",
+    href: "/dashboard/mes-achats",
+    icon: ShoppingCart,
+    proOnly: true, // Only for professionals
   },
   {
     title: "Mes objets",
@@ -30,6 +42,12 @@ const sidebarItems = [
     icon: User,
   },
   {
+    title: "Moyens de paiement",
+    href: "/dashboard/profile/payment-methods",
+    icon: CreditCard,
+    proOnly: true, // Only for professionals
+  },
+  {
     title: "Donner un avis",
     href: "/feedback",
     icon: MessageSquare,
@@ -38,7 +56,15 @@ const sidebarItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
+
+  // Filter items based on user role
+  const filteredItems = sidebarItems.filter(item => {
+    if (item.proOnly && user?.role !== 'professionnel') {
+      return false
+    }
+    return true
+  })
 
   return (
     <div className="flex min-h-screen">
@@ -49,7 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             Mon Espace
           </h2>
           <nav className="flex-1 space-y-1">
-            {sidebarItems.map((item) => (
+            {filteredItems.map((item) => (
               <Button
                 key={item.href}
                 variant={pathname === item.href ? "secondary" : "ghost"}

@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ArrowLeft, ShieldCheck, Heart, Share2, Loader2, Gavel } from 'lucide-react'
-import { AuctionTimer, BidForm, BidHistory } from '@/components/objects'
+import { AuctionTimer, BidForm, BidHistory, QuickSaleBuyButton } from '@/components/objects'
 import { objectsAPI, favoritesAPI } from '@/lib/api'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -278,21 +278,36 @@ export default function ObjetDetailPage() {
             </div>
           )}
 
-          {/* Quick Sale Button */}
           {/* Quick Sale Button - Only for logged in users */}
           {!isAuction && object.status === 'active' && isAuthenticated && (
             <div className="flex flex-col gap-3">
-              <Button size="lg" className="w-full">
-                Acheter maintenant
-              </Button>
-              {user?.role === 'professionnel' && (
-                <Button size="lg" variant="outline" className="w-full">
-                  Faire une offre
-                </Button>
+              {user?.id === (typeof object.seller === 'string' ? object.seller : object.seller?.id) ? (
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 text-amber-600 dark:text-amber-400 text-sm flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 shrink-0" />
+                  <span>Vous êtes le vendeur de cet objet. Vous ne pouvez pas l'acheter.</span>
+                </div>
+              ) : user?.role !== 'professionnel' ? (
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-blue-600 dark:text-blue-400 text-sm">
+                  <p className="font-semibold mb-1">Réservé aux professionnels</p>
+                  <p className="mb-3">Seuls les comptes professionnels peuvent acheter des objets.</p>
+                  <Link href="/register" className="text-primary hover:underline font-medium">
+                    Créer un compte pro &rarr;
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <QuickSaleBuyButton 
+                    objectId={object.id}
+                    price={object.quickSalePrice || 0}
+                  />
+                  <Button size="lg" variant="outline" className="w-full">
+                    Faire une offre
+                  </Button>
+                  <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
+                    <ShieldCheck className="h-3 w-3" /> Paiement sécurisé & Protection acheteur
+                  </p>
+                </>
               )}
-              <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
-                <ShieldCheck className="h-3 w-3" /> Paiement sécurisé & Protection acheteur
-              </p>
             </div>
           )}
 

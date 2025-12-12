@@ -102,8 +102,10 @@ export function BidHistory({ objectId, sellerId, autoRefresh = true, refreshInte
           {bids.map((bid, index) => (
             <div
               key={bid.id}
-              className={`flex items-center justify-between p-3 rounded-lg border ${
-                bid.status === 'highest' ? 'bg-green-50 border-green-200' : 'bg-muted/30'
+              className={`flex items-center justify-between p-3 rounded-lg ${
+                bid.status === 'highest'
+                  ? 'bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800'
+                  : 'border border-border'
               }`}
             >
               <div className="flex-1">
@@ -114,7 +116,7 @@ export function BidHistory({ objectId, sellerId, autoRefresh = true, refreshInte
                       : bid.bidder.email.split('@')[0]}
                   </span>
                   {bid.status === 'highest' && (
-                    <Badge variant="default" className="bg-green-600">
+                    <Badge variant="default" className="bg-green-600 dark:bg-green-700">
                       Enchère la plus haute
                     </Badge>
                   )}

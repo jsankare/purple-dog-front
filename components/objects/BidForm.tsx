@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -70,7 +71,12 @@ export function BidForm({ objectId, currentBidAmount, minBidIncrement, onBidPlac
       // Reset success message after 3 seconds
       setTimeout(() => setSuccess(false), 3000)
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la placement de l\'enchère')
+      // Check if error is payment method required
+      if (err.code === 'PAYMENT_METHOD_REQUIRED' || err.message?.includes('payment method')) {
+        setError('Vous devez ajouter un moyen de paiement avant d\'enchérir')
+      } else {
+        setError(err.message || 'Erreur lors de la placement de l\'enchère')
+      }
     } finally {
       setIsLoading(false)
     }
@@ -117,12 +123,23 @@ export function BidForm({ objectId, currentBidAmount, minBidIncrement, onBidPlac
 
       {error && (
         <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {error}
+            {error.includes('moyen de paiement') && (
+              <div className="mt-2">
+                <Link href="/dashboard/profile/payment-methods">
+                  <Button variant="outline" size="sm" className="mt-2">
+                    Ajouter un moyen de paiement
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </AlertDescription>
         </Alert>
       )}
 
       {success && (
-        <Alert className="bg-green-50 text-green-900 border-green-200">
+        <Alert className="bg-green-50 dark:bg-green-950 text-green-900 dark:text-green-100 border-green-200 dark:border-green-800">
           <AlertDescription>✅ Enchère placée avec succès !</AlertDescription>
         </Alert>
       )}
