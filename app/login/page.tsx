@@ -1,150 +1,112 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { authAPI } from "@/lib/api";
-import { Mail, Lock, ArrowRight, ArrowLeft } from "lucide-react";
+import { useState } from 'react'
+import { getErrorMessage } from '@/lib/error-mapping'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { useAuth } from '@/hooks/useAuth'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Loader2, AlertCircle } from 'lucide-react'
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const { login } = useAuth()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get('redirect')
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError('')
 
     try {
-      const response = await authAPI.login(email, password);
-      
-      if (response.token) {
-        window.dispatchEvent(new Event('auth-change'));
-        router.push('/profile');
+      await login(email, password)
+      if (redirect) {
+        router.push(redirect)
+      } else {
+        router.push('/dashboard')
       }
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la connexion');
+      setError(getErrorMessage(err))
     } finally {
-      setLoading(false);
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Breadcrumb */}
-        <div className="mb-8">
-          <Link 
-            href="/" 
-            className="inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Retour à l'accueil</span>
-          </Link>
-        </div>
-
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-serif text-neutral-900 mb-2">
-            Connexion
-          </h1>
-          <div className="w-24 h-px bg-[#4B2377] mb-4"></div>
-          <p className="text-neutral-600">
-            Connectez-vous pour accéder à votre compte Purple Dog
-          </p>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-800">
-            {error}
-          </div>
-        )}
-
-        {/* Form Card */}
-        <div className="bg-white border border-neutral-200 p-8">
-          <form onSubmit={onSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-2">
-                Adresse email <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
-                <input 
-                  id="email"
-                  className="w-full pl-10 pr-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors" 
-                  type="email" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
-                  required 
-                  placeholder="nom@exemple.com"
-                />
-              </div>
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] px-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
+          <CardDescription>
+            Entrez vos identifiants pour accéder à votre espace
+          </CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Erreur</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="nom@exemple.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-2">
-                Mot de passe <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
-                <input 
-                  id="password"
-                  className="w-full pl-10 pr-4 py-3 border border-neutral-300 focus:border-[#4B2377] focus:outline-none transition-colors" 
-                  type="password" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)} 
-                  required 
-                  placeholder="••••••••"
-                />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Mot de passe</Label>
+                <Link 
+                  href="/forgot-password" 
+                  className="text-sm text-indigo-600 hover:text-indigo-500 hover:underline"
+                >
+                  Mot de passe oublié ?
+                </Link>
               </div>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
-
-            <div className="flex items-center justify-end">
-              <Link 
-                href="/forgot-password" 
-                className="text-sm text-[#4B2377] hover:text-purple-700 transition-colors"
-              >
-                Mot de passe oublié ?
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <Button 
+               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" 
+               type="submit" 
+               disabled={isLoading}
+            >
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Se connecter
+            </Button>
+            <div className="text-center text-sm text-muted-foreground">
+              Pas encore de compte ?{' '}
+              <Link href="/register" className="text-indigo-600 hover:text-indigo-500 hover:underline">
+                S'inscrire
               </Link>
             </div>
-
-            <button 
-              className="w-full bg-[#4B2377] text-white hover:bg-[#3d1d61] transition-colors flex items-center justify-center gap-2 py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed" 
-              disabled={loading}
-              type="submit"
-            >
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>Connexion...</span>
-                </div>
-              ) : (
-                <>
-                  <span>Se connecter</span>
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
-            </button>
-          </form>
-        </div>
-
-        {/* Signup Link */}
-        <div className="mt-6 text-center">
-          <p className="text-neutral-600">
-            Pas encore de compte ?{' '}
-            <Link 
-              href="/signup" 
-              className="text-[#4B2377] hover:text-purple-700 font-medium transition-colors"
-            >
-              Créer un compte
-            </Link>
-          </p>
-        </div>
-      </div>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
-  );
+  )
 }

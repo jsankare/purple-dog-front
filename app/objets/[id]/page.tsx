@@ -1,490 +1,332 @@
-"use client";
+'use client'
 
-import { useState, useEffect, use } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Clock, ChevronLeft, ChevronRight, Package, FileText, User, Heart, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { ArrowLeft, ShieldCheck, Heart, Share2, Loader2, Gavel } from 'lucide-react'
+import { AuctionTimer, BidForm, BidHistory } from '@/components/objects'
+import { objectsAPI, favoritesAPI } from '@/lib/api'
+import { useAuth } from '@/hooks/useAuth'
 
-interface ObjectDetails {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  price: number;
-  saleMode: string;
-  status: string;
-  photos?: Array<{ photo: { url: string; id: string } }>;
-  documents?: Array<{ document: { url: string; filename: string }; description?: string }>;
-  dimensions?: {
-    length: number;
-    width: number;
-    height: number;
-    weight: number;
-  };
-  seller?: {
-    id: string;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-  };
-  auctionConfig?: {
-    currentBid?: number;
-    bidCount?: number;
-    startingPrice?: number;
-    reservePrice?: number;
-    startDate?: string;
-    endDate?: string;
-  };
-  views?: number;
-  favorites?: number;
-  createdAt?: string;
-}
+export default function ObjetDetailPage() {
+  const params = useParams()
+  const { user, isAuthenticated } = useAuth()
+  const [object, setObject] = useState<any>(null)
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
-function PhotoGallery({ photos }: { photos: Array<{ photo: { url: string; id: string } }> }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  useEffect(() => {
+    const fetchObject = async () => {
+      try {
+        const result = await objectsAPI.getById(params.id as string)
+        console.log('GET Object details result:', result)
+        setObject(result)
+      } catch (error) {
+        console.error('Error fetching object:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
 
-  if (!photos || photos.length === 0) {
-    return (
-      <div className="w-full aspect-[4/3] bg-neutral-100 flex items-center justify-center">
-        <p className="text-neutral-400">Aucune image disponible</p>
-      </div>
-    );
+    fetchObject()
+  }, [params.id])
+
+  // Check if favorite
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!isAuthenticated) return
+      
+      try {
+        const result = await favoritesAPI.getAll()
+        const isFav = (result.docs || []).some((fav: any) => {
+          const favObjectId = typeof fav.object === 'string' ? fav.object : fav.object?.id
+          return favObjectId === params.id
+        })
+        setIsFavorite(isFav)
+      } catch (error) {
+        console.log('Could not check favorite status')
+      }
+    }
+
+    checkFavorite()
+  }, [params.id, isAuthenticated])
+
+  const handleFavoriteToggle = async () => {
+    try {
+      const result = await favoritesAPI.toggle(params.id as string)
+      setIsFavorite(result.isFavorite)
+    } catch (error) {
+      console.error('Error toggling favorite:', error)
+    }
   }
 
-  return (
-    <div className="space-y-4">
-      <div className="relative aspect-[4/3] bg-neutral-100 overflow-hidden">
-        <img
-          src={photos[currentIndex]?.photo?.url}
-          alt={`Photo ${currentIndex + 1}`}
-          className="w-full h-full object-contain"
-        />
-        
-        {photos.length > 1 && (
-          <>
-            <button
-              onClick={() => setCurrentIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1))}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all"
-            >
-              <ChevronLeft className="w-6 h-6 text-neutral-800" />
-            </button>
-            <button
-              onClick={() => setCurrentIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1))}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all"
-            >
-              <ChevronRight className="w-6 h-6 text-neutral-800" />
-            </button>
-            
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm">
-              {currentIndex + 1} / {photos.length}
-            </div>
-          </>
-        )}
-      </div>
+  const handleBidPlaced = () => {
+    // Refresh object data
+    objectsAPI.getById(params.id as string).then(setObject)
+  }
 
-      {photos.length > 1 && (
-        <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
-          {photos.map((photo, idx) => (
-            <button
-              key={photo.photo.id}
-              onClick={() => setCurrentIndex(idx)}
-              className={`aspect-square overflow-hidden border-2 transition-all ${
-                idx === currentIndex ? 'border-[#4B2377] ring-2 ring-[#4B2377]' : 'border-neutral-200 hover:border-[#4B2377]'
-              }`}
-            >
-              <img
-                src={photo.photo.url}
-                alt={`Miniature ${idx + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function CountdownTimer({ endDate }: { endDate: string }) {
-  const [timeLeft, setTimeLeft] = useState('');
-
-  useEffect(() => {
-    const calculateTimeLeft = () => {
-      const end = new Date(endDate).getTime();
-      const now = new Date().getTime();
-      const difference = end - now;
-
-      if (difference <= 0) {
-        setTimeLeft('Terminée');
-        return;
-      }
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-      if (days > 0) {
-        setTimeLeft(`${days}j ${hours}h ${minutes}m`);
-      } else if (hours > 0) {
-        setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
-      } else {
-        setTimeLeft(`${minutes}m ${seconds}s`);
-      }
-    };
-
-    calculateTimeLeft();
-    const interval = setInterval(calculateTimeLeft, 1000);
-
-    return () => clearInterval(interval);
-  }, [endDate]);
-
-  return (
-    <div className="flex items-center gap-2 text-2xl font-bold text-[#4B2377]">
-      <Clock className="w-6 h-6" />
-      <span>{timeLeft}</span>
-    </div>
-  );
-}
-
-export default function ObjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
-  const [object, setObject] = useState<ObjectDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [bidAmount, setBidAmount] = useState('');
-  const [showAutoBid, setShowAutoBid] = useState(false);
-  const [autoBidAmount, setAutoBidAmount] = useState('');
-
-  useEffect(() => {
-    fetchObjectDetails();
-    incrementViewCount();
-  }, [id]);
-
-  const fetchObjectDetails = async () => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const response = await fetch(`${API_URL}/api/objects/${id}`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log('Objet chargé:', data);
-      setObject(data);
-    } catch (error) {
-      console.error('Erreur lors du chargement de l\'objet:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const incrementViewCount = async () => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      await fetch(`${API_URL}/api/objects/${id}/view`, {
-        method: 'POST',
-      });
-    } catch (error) {
-      console.error('Erreur lors de l\'incrémentation des vues:', error);
-    }
-  };
-
-  const getBidIncrement = (currentPrice: number): number => {
-    if (currentPrice < 100) return 10;
-    if (currentPrice < 500) return 50;
-    if (currentPrice < 1000) return 100;
-    if (currentPrice < 5000) return 200;
-    if (currentPrice < 10000) return 500;
-    return 1000;
-  };
-
-  const handleQuickBuy = async () => {
-    if (!object) return;
-    
-    if (!confirm(`Confirmer l'achat pour ${object.price.toLocaleString('fr-FR')} € ?`)) {
-      return;
-    }
-
-    try {
-      alert('Achat en cours... (API à implémenter)');
-    } catch (error) {
-      console.error('Erreur lors de l\'achat:', error);
-      alert('Erreur lors de l\'achat');
-    }
-  };
-
-  const handlePlaceBid = async (amount: number, isAuto: boolean = false) => {
-    if (amount <= 0) {
-      alert('Veuillez entrer un montant valide');
-      return;
-    }
-
-    try {
-      const bidType = isAuto ? 'automatique' : 'manuelle';
-      alert(`Enchère ${bidType} de ${amount.toLocaleString('fr-FR')} € placée ! (API à implémenter)`);
-      setBidAmount('');
-      setAutoBidAmount('');
-      setShowAutoBid(false);
-    } catch (error) {
-      console.error('Erreur lors de l\'enchère:', error);
-      alert('Erreur lors de l\'enchère');
-    }
-  };
-
-  const categories = [
-    { value: 'bijoux-montres', label: 'Bijoux & montres' },
-    { value: 'meubles-anciens', label: 'Meubles anciens' },
-    { value: 'objets-art-tableaux', label: 'Objets d\'art & tableaux' },
-    { value: 'objets-collection', label: 'Objets de collection' },
-    { value: 'vins-spiritueux', label: 'Vins & spiritueux' },
-    { value: 'instruments-musique', label: 'Instruments de musique' },
-    { value: 'livres-manuscrits', label: 'Livres & manuscrits' },
-    { value: 'mode-luxe', label: 'Mode & luxe' },
-    { value: 'horlogerie-pendules', label: 'Horlogerie' },
-    { value: 'photographies-vintage', label: 'Photographies' },
-    { value: 'vaisselle-argenterie', label: 'Vaisselle & argenterie' },
-    { value: 'sculptures-decoratifs', label: 'Sculptures' },
-    { value: 'vehicules-collection', label: 'Véhicules de collection' },
-  ];
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
-        <div className="max-w-7xl mx-auto text-center py-20">
-          <div className="inline-block w-12 h-12 border-4 border-neutral-200 border-t-[#4B2377] rounded-full animate-spin"></div>
-          <p className="mt-4 text-neutral-600">Chargement de l'objet...</p>
-        </div>
+      <div className="container mx-auto px-4 py-20 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    );
+    )
   }
 
   if (!object) {
     return (
-      <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
-        <div className="max-w-7xl mx-auto text-center py-20">
-          <p className="text-neutral-600 mb-4">Objet non trouvé</p>
-          <Link href="/objets" className="text-[#4B2377] hover:text-purple-700 font-medium">
-            Retour aux objets
-          </Link>
-        </div>
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h1 className="text-2xl font-bold">Objet non trouvé</h1>
+        <Link href="/catalogue">
+          <Button className="mt-4">Retour au catalogue</Button>
+        </Link>
       </div>
-    );
+    )
   }
 
-  const currentPrice = object.saleMode === 'auction' && object.auctionConfig?.currentBid 
-    ? object.auctionConfig.currentBid 
-    : object.saleMode === 'auction' && object.auctionConfig?.startingPrice
-    ? object.auctionConfig.startingPrice
-    : object.price * 0.9;
+  const isAuction = object.saleMode === 'auction'
+  const price = isAuction 
+    ? (object.currentBidAmount || object.auctionStartPrice || 0)
+    : (object.quickSalePrice || 0)
+  
+  // Normalize images from Payload 'photos' or legacy 'images'
+  let images = []
+  if (object.photos && object.photos.length > 0) {
+    images = object.photos.map((p: any) => {
+      if (typeof p.image === 'object' && p.image?.url) {
+        return { url: p.image.url, alt: p.name || object.name }
+      }
+      return null
+    }).filter(Boolean)
+  } else if (object.images && object.images.length > 0) {
+    images = object.images
+  }
+  
+  // Fallback if no images
+  if (images.length === 0) {
+    images = [{ url: '/placeholder-object.jpg', alt: 'Placeholder' }]
+  }
 
-  const increment = getBidIncrement(currentPrice);
+  const currentImage = images[currentImageIndex]
 
   return (
-    <div className="min-h-screen bg-[#F9F3FF] py-20 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <Link 
-            href="/objets" 
-            className="inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-[#4B2377] transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Retour aux objets</span>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Retour */}
+      <div className="mb-6">
+        <Button variant="ghost" asChild className="pl-0 hover:pl-2 transition-all">
+          <Link href="/catalogue">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Retour au catalogue
           </Link>
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {/* Colonne Gauche : Images */}
+        <div className="space-y-4">
+          <div className="aspect-square bg-muted rounded-xl relative overflow-hidden">
+            {currentImage ? (
+              <Image
+                src={currentImage.url}
+                alt={object.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                Aucune image
+              </div>
+            )}
+            <Badge 
+              className="absolute top-4 left-4" 
+              variant={isAuction ? 'destructive' : 'default'}
+            >
+              {isAuction ? '🔨 Enchère' : '⚡ Vente rapide'}
+            </Badge>
+          </div>
+          
+          {images.length > 1 && (
+            <div className="grid grid-cols-5 gap-2">
+              {images.map((img: any, index: number) => (
+                <div
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`aspect-square bg-muted rounded-lg cursor-pointer hover:ring-2 hover:ring-primary transition-all relative overflow-hidden ${
+                    index === currentImageIndex ? 'ring-2 ring-primary' : ''
+                  }`}
+                >
+                  <Image
+                    src={img.url}
+                    alt={`${object.name} ${index + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white p-6 border border-neutral-200">
-            <PhotoGallery photos={object.photos || []} />
-          </div>
-
-          <div className="space-y-6">
-            <div className="bg-white p-6 border border-neutral-200">
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div className="flex-1">
-                  <span className="inline-block px-3 py-1 text-xs bg-purple-50 text-[#4B2377] border border-purple-200 mb-3">
-                    {categories.find(c => c.value === object.category)?.label || object.category}
-                  </span>
-                  <h1 className="text-3xl font-serif text-neutral-900 mb-2">
-                    {object.name}
-                  </h1>
-                </div>
-                <button className="p-2 hover:bg-neutral-100 rounded-full transition-colors">
-                  <Heart className="w-6 h-6 text-neutral-400 hover:text-[#4B2377]" />
-                </button>
+        {/* Colonne Droite : Infos & Actions */}
+        <div className="space-y-6">
+          <div>
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                {object.category && (
+                  <Badge variant="outline" className="mb-2">
+                    {typeof object.category === 'string' 
+                      ? object.category 
+                      : (object.category.name || 'Catégorie inconnue')}
+                  </Badge>
+                )}
+                <h1 className="text-3xl font-bold tracking-tight mb-2">{object.name}</h1>
+                <p className="text-3xl text-primary font-bold">
+                  {price.toLocaleString('fr-FR')} €
+                </p>
+                {isAuction && object.bidCount > 0 && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {object.bidCount} enchère{object.bidCount > 1 ? 's' : ''}
+                  </p>
+                )}
               </div>
-
-              <div className="flex items-center gap-4 text-sm text-neutral-500">
-                <div className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" />
-                  <span>{object.views || 0} vues</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Heart className="w-4 h-4" />
-                  <span>{object.favorites || 0} favoris</span>
-                </div>
+              <div className="flex gap-2">
+                {isAuthenticated && (
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={handleFavoriteToggle}
+                  >
+                    <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+                  </Button>
+                )}
+                <Button variant="outline" size="icon">
+                  <Share2 className="h-5 w-5" />
+                </Button>
               </div>
             </div>
 
-            {object.saleMode === 'auction' && object.auctionConfig ? (
-              <div className="bg-white p-6 border border-neutral-200 space-y-4">
-                <div className="flex items-center justify-between pb-4 border-b border-neutral-200">
-                  <div>
-                    <p className="text-sm text-neutral-600 mb-1">Enchère actuelle</p>
-                    <p className="text-4xl font-serif text-[#4B2377] font-bold">
-                      {currentPrice.toLocaleString('fr-FR')} €
-                    </p>
-                    {object.auctionConfig.bidCount !== undefined && object.auctionConfig.bidCount > 0 && (
-                      <p className="text-sm text-neutral-500 mt-1">
-                        {object.auctionConfig.bidCount} enchère{object.auctionConfig.bidCount > 1 ? 's' : ''}
-                      </p>
-                    )}
-                  </div>
-                  {object.auctionConfig.endDate && (
-                    <div className="text-right">
-                      <p className="text-sm text-neutral-600 mb-2">Temps restant</p>
-                      <CountdownTimer endDate={object.auctionConfig.endDate} />
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <p className="text-sm text-neutral-600 mb-3">
-                    Prochaine enchère : <span className="font-bold text-[#4B2377]">{(currentPrice + increment).toLocaleString('fr-FR')} €</span> (palier de {increment}€)
-                  </p>
-                  <button
-                    onClick={() => handlePlaceBid(currentPrice + increment)}
-                    className="w-full px-6 py-4 bg-[#4B2377] hover:bg-purple-700 text-white text-lg font-medium transition-colors"
-                  >
-                    Enchérir
-                  </button>
-                </div>
-
-                {!showAutoBid ? (
-                  <button
-                    onClick={() => setShowAutoBid(true)}
-                    className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
-                  >
-                    Enchère automatique
-                  </button>
-                ) : (
-                  <div className="space-y-3 p-4 bg-green-50 border border-green-200">
-                    <label className="block text-sm font-medium text-neutral-700">
-                      Enchère automatique (offre max)
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        placeholder="Votre offre maximale"
-                        value={autoBidAmount}
-                        onChange={(e) => setAutoBidAmount(e.target.value)}
-                        className="flex-1 px-4 py-3 border border-neutral-300 focus:border-green-600 focus:outline-none"
-                      />
-                      <button
-                        onClick={() => handlePlaceBid(parseFloat(autoBidAmount || '0'), true)}
-                        className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium transition-colors whitespace-nowrap"
-                      >
-                        Valider
-                      </button>
-                    </div>
-                    <p className="text-xs text-neutral-600">
-                      Le système enchérira par paliers de {increment}€ jusqu'à ce montant
-                    </p>
-                    <button
-                      onClick={() => setShowAutoBid(false)}
-                      className="w-full px-4 py-2 bg-neutral-200 hover:bg-neutral-300 text-neutral-700 text-sm font-medium transition-colors"
-                    >
-                      Annuler
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="bg-white p-6 border border-neutral-200 space-y-4">
-                <div>
-                  <p className="text-sm text-neutral-600 mb-1">Prix</p>
-                  <p className="text-4xl font-serif text-[#4B2377] font-bold">
-                    {object.price.toLocaleString('fr-FR')} €
-                  </p>
-                  <p className="text-sm text-neutral-500 mt-1">Prix fixe</p>
-                </div>
-                <button
-                  onClick={handleQuickBuy}
-                  className="w-full px-6 py-4 bg-[#4B2377] hover:bg-purple-700 text-white text-lg font-medium transition-colors"
-                >
-                  Acheter maintenant
-                </button>
+            {isAuction && object.auctionEndDate && object.status === 'active' && (
+              <div className="mt-4">
+                <AuctionTimer endDate={object.auctionEndDate} />
               </div>
             )}
-
           </div>
-        </div>
 
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-white p-6 border border-neutral-200">
-            <h2 className="text-2xl font-semibold text-neutral-900 mb-4">Description</h2>
-            <p className="text-neutral-700 whitespace-pre-wrap leading-relaxed">
+          <Separator />
+
+          {/* Description */}
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Description</h3>
+            <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
               {object.description}
             </p>
-          </div>
-
-          <div className="space-y-6">
+            
             {object.dimensions && (
-              <div className="bg-white p-6 border border-neutral-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <Package className="w-5 h-5 text-neutral-600" />
-                  <h2 className="text-lg font-semibold text-neutral-900">Dimensions</h2>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-neutral-600">Longueur</span>
-                    <span className="font-medium text-neutral-900">{object.dimensions.length} cm</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-neutral-600">Largeur</span>
-                    <span className="font-medium text-neutral-900">{object.dimensions.width} cm</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-neutral-600">Hauteur</span>
-                    <span className="font-medium text-neutral-900">{object.dimensions.height} cm</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-neutral-600">Poids</span>
-                    <span className="font-medium text-neutral-900">{object.dimensions.weight} kg</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {object.documents && object.documents.length > 0 && (
-              <div className="bg-white p-6 border border-neutral-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <FileText className="w-5 h-5 text-neutral-600" />
-                  <h2 className="text-lg font-semibold text-neutral-900">Documents</h2>
-                </div>
-                <div className="space-y-2">
-                  {object.documents.map((doc, idx) => (
-                    <a
-                      key={idx}
-                      href={doc.document.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 p-3 bg-neutral-50 hover:bg-neutral-100 transition-colors text-sm"
-                    >
-                      <FileText className="w-4 h-4 text-neutral-600" />
-                      <div className="flex-1">
-                        <p className="font-medium text-neutral-900">{doc.document.filename}</p>
-                        {doc.description && (
-                          <p className="text-xs text-neutral-500">{doc.description}</p>
-                        )}
-                      </div>
-                    </a>
-                  ))}
+              <div className="mt-4 bg-muted/50 p-4 rounded-lg">
+                <h4 className="font-medium mb-2">Dimensions</h4>
+                <div className="text-sm text-muted-foreground grid grid-cols-2 gap-2">
+                  <p>H: {object.dimensions.height} cm</p>
+                  <p>L: {object.dimensions.width} cm</p>
+                  <p>P: {object.dimensions.depth} cm</p>
+                  <p>Poids: {object.dimensions.weight} kg</p>
                 </div>
               </div>
             )}
           </div>
+
+          <Separator />
+
+          {/* Bid Form for Auctions */}
+          {isAuction && object.status === 'active' && isAuthenticated && (
+            <div className="bg-card/50 p-6 rounded-xl border border-border shadow-sm">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <Gavel className="h-5 w-5" />
+                Placer une enchère
+              </h3>
+              
+              {user?.id === (typeof object.seller === 'string' ? object.seller : object.seller?.id) ? (
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 text-amber-600 dark:text-amber-400 text-sm flex items-center gap-2">
+                   <ShieldCheck className="h-4 w-4 shrink-0" />
+                   <span>Vous êtes le vendeur de cet objet. Vous ne pouvez pas enchérir dessus.</span>
+                </div>
+              ) : user?.role !== 'professionnel' ? (
+                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-blue-600 dark:text-blue-400 text-sm">
+                   <p className="font-semibold mb-1">Réservé aux professionnels</p>
+                   <p className="mb-3">Seuls les comptes professionnels peuvent participer aux enchères.</p>
+                   <Link href="/register" className="text-primary hover:underline font-medium">
+                     Créer un compte pro &rarr;
+                   </Link>
+                 </div>
+              ) : (
+                <BidForm
+                  objectId={object.id}
+                  currentBidAmount={object.currentBidAmount || object.auctionStartPrice || 0}
+                  minBidIncrement={
+                    price < 100 ? 10 :
+                    price < 500 ? 50 :
+                    price < 1000 ? 100 :
+                    price < 5000 ? 200 : 500
+                  }
+                  onBidPlaced={handleBidPlaced}
+                />
+              )}
+            </div>
+          )}
+
+          {/* Quick Sale Button */}
+          {/* Quick Sale Button - Only for logged in users */}
+          {!isAuction && object.status === 'active' && isAuthenticated && (
+            <div className="flex flex-col gap-3">
+              <Button size="lg" className="w-full">
+                Acheter maintenant
+              </Button>
+              {user?.role === 'professionnel' && (
+                <Button size="lg" variant="outline" className="w-full">
+                  Faire une offre
+                </Button>
+              )}
+              <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
+                <ShieldCheck className="h-3 w-3" /> Paiement sécurisé & Protection acheteur
+              </p>
+            </div>
+          )}
+
+          {!isAuthenticated && (
+            <div className="bg-muted/50 p-4 rounded-lg text-center">
+              <p className="text-sm text-muted-foreground mb-2">
+                {isAuction 
+                  ? "Connectez-vous avec un compte professionnel pour enchérir" 
+                  : "Connectez-vous pour acheter"}
+              </p>
+              <div className="flex flex-col gap-2 justify-center items-center">
+                <Link href={`/login?redirect=/objets/${object.id}`} className="w-full">
+                  <Button className="w-full">Se connecter</Button>
+                </Link>
+                {isAuction && (
+                  <Link href="/register" className="text-xs text-primary hover:underline">
+                    Pas encore de compte pro ? S'inscrire
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Bid History for Auctions - Only Pro */}
+      {isAuction && user?.role === 'professionnel' && (
+        <div className="mt-12">
+          <BidHistory 
+            objectId={object.id} 
+            sellerId={typeof object.seller === 'string' ? object.seller : object.seller?.id}
+          />
+        </div>
+      )}
     </div>
-  );
+  )
 }

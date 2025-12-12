@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google"; 
+import { Inter } from "next/font/google"; 
 import "./globals.css";
-import type { Metadata } from "next";
-import Header from "@/app/components/layout/Header";
-import Footer from "@/app/components/layout/Footer";
-import Bot from "@/app/components/bot/bot";
+import { AuthProvider } from "@/hooks/useAuth";
+import { LayoutContent } from "@/components/LayoutContent";
+
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner"
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Purple Dog",
@@ -13,12 +16,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
-      <body className="bg-[#F9F3FF] text-gray-900 relative">
-        <Header />
-        <Bot />
-        {children}
-        <Footer />
+    <html lang="fr" className="h-full" suppressHydrationWarning>
+      <body className={`${inter.className} min-h-screen bg-background text-foreground antialiased flex flex-col`}>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+          <AuthProvider>
+            <LayoutContent>{children}</LayoutContent>
+            <Toaster richColors />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
