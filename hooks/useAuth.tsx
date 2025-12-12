@@ -15,6 +15,8 @@ interface User {
   _verified?: boolean
   canBid?: boolean
   canSell?: boolean
+  stripePaymentMethodId?: string
+  hasValidPaymentMethod?: boolean
 }
 
 interface AuthContextType {
@@ -80,8 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true)
     try {
       const response = await authAPI.register(data)
-      // On ne connecte PAS l'utilisateur automatiquement ici
-      // On attend qu'il clique sur le lien dans son email
       return response
     } finally {
       setIsLoading(false)
