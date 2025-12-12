@@ -511,6 +511,13 @@ export const transactionsAPI = {
       method: 'POST',
     });
   },
+
+  confirmPayment: async (sessionId: string) => {
+    return apiCall('/api/transactions/confirm-payment', {
+      method: 'POST',
+      body: JSON.stringify({ sessionId }),
+    });
+  },
 };
 
 export const globalsAPI = {
