@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { LayoutDashboard, ShoppingBag, PlusCircle, User, MessageSquare, LogOut, Gavel, ShoppingCart, CreditCard } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, PlusCircle, User, MessageSquare, LogOut, Gavel, ShoppingCart, CreditCard, Heart } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
 const sidebarItems = [
@@ -25,6 +25,12 @@ const sidebarItems = [
     title: "Mes achats",
     href: "/dashboard/mes-achats",
     icon: ShoppingCart,
+    proOnly: true, // Only for professionals
+  },
+  {
+    title: "Mes favoris",
+    href: "/dashboard/mes-favoris",
+    icon: Heart,
     proOnly: true, // Only for professionals
   },
   {

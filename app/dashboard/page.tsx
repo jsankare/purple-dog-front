@@ -111,19 +111,19 @@ export default function DashboardPage() {
   const proCards = [
     {
       title: "Enchères actives",
-      value: stats.activeBids.toString(),
+      value: (stats.activeBids ?? 0).toString(),
       description: "Enchères en cours",
       icon: TrendingUp,
     },
     {
       title: "Enchères gagnées",
-      value: stats.wonAuctions.toString(),
+      value: (stats.wonAuctions ?? 0).toString(),
       description: "Total remporté",
       icon: Package,
     },
     {
       title: "Objets favoris",
-      value: stats.favoriteObjects.toString(),
+      value: (stats.favoriteObjects ?? 0).toString(),
       description: "Dans votre liste",
       icon: DollarSign,
     },
