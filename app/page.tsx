@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-neutral-950">
+    <main className="min-h-screen bg-[#F9F3FF] dark:bg-neutral-950">
       <div className="mx-auto w-full max-w-7xl px-4">
         <section className="py-12">
           <HeroBandeau />

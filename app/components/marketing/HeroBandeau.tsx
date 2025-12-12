@@ -68,29 +68,29 @@ export default function HeroBandeau() {
   const currentObject = objects[currentIndex];
 
   return (
-    <section className="bg-[#1A1A1A] border border-neutral-800">
+    <section className="bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-neutral-800">
       <div className="grid grid-cols-1 lg:grid-cols-2">
-        <div className="relative h-[400px] lg:h-[500px] bg-neutral-900">
+        <div className="relative h-[400px] lg:h-[500px] bg-neutral-100 dark:bg-neutral-900">
           <img
             src={currentObject.image}
             alt={currentObject.title}
-            className="w-full h-full object-cover opacity-90"
+            className="w-full h-full object-cover dark:opacity-90 transition-opacity"
           />
 
           <div className="absolute inset-0 flex items-center justify-between p-4">
             <button
               onClick={goToPrevious}
-              className="w-10 h-10 bg-black/50 hover:bg-black/70 flex items-center justify-center transition-colors rounded-full backdrop-blur-sm"
+              className="w-10 h-10 bg-white/90 hover:bg-white dark:bg-black/50 dark:hover:bg-black/70 flex items-center justify-center transition-colors rounded dark:rounded-full backdrop-blur-sm"
               aria-label="Image précédente"
             >
-              <ChevronLeft className="w-6 h-6 text-white" />
+              <ChevronLeft className="w-6 h-6 text-neutral-900 dark:text-white" />
             </button>
             <button
               onClick={goToNext}
-              className="w-10 h-10 bg-black/50 hover:bg-black/70 flex items-center justify-center transition-colors rounded-full backdrop-blur-sm"
+              className="w-10 h-10 bg-white/90 hover:bg-white dark:bg-black/50 dark:hover:bg-black/70 flex items-center justify-center transition-colors rounded dark:rounded-full backdrop-blur-sm"
               aria-label="Image suivante"
             >
-              <ChevronRight className="w-6 h-6 text-white" />
+              <ChevronRight className="w-6 h-6 text-neutral-900 dark:text-white" />
             </button>
           </div>
 
@@ -102,37 +102,37 @@ export default function HeroBandeau() {
                   setIsAutoPlaying(false);
                   setCurrentIndex(index);
                 }}
-                className={`w-2 h-2 transition-all rounded-full ${
+                className={`w-2 h-2 transition-all ${
                   index === currentIndex
-                    ? "bg-[#6d28d9] w-8"
-                    : "bg-white/50 hover:bg-white"
-                }`}
+                    ? "bg-[#4B2377] dark:bg-[#6d28d9] w-8"
+                    : "bg-white/70 hover:bg-white dark:bg-white/50 dark:hover:bg-white"
+                } rounded-full`}
                 aria-label={`Aller à l'objet ${index + 1}`}
               />
             ))}
           </div>
         </div>
 
-        <div className="p-8 lg:p-12 flex flex-col justify-center text-white">
+        <div className="p-8 lg:p-12 flex flex-col justify-center text-neutral-900 dark:text-white">
           <div className="mb-6">
-            <span className="text-xs uppercase tracking-wider text-[#a78bfa] mb-2 block">
+            <span className="text-xs uppercase tracking-wider text-neutral-500 dark:text-[#a78bfa] mb-2 block">
               Objet d'exception
             </span>
-            <h2 className="text-3xl lg:text-4xl font-serif text-white mb-4">
+            <h2 className="text-3xl lg:text-4xl font-serif text-neutral-900 dark:text-white mb-4">
               {currentObject.title}
             </h2>
-            <div className="w-16 h-px bg-[#6d28d9] mb-6"></div>
+            <div className="w-16 h-px bg-[#4B2377] dark:bg-[#6d28d9] mb-6"></div>
           </div>
 
-          <p className="text-neutral-300 leading-relaxed mb-8">
+          <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed mb-8">
             {currentObject.description}
           </p>
 
           <div className="flex items-baseline gap-3 mb-8">
-            <span className="text-xs uppercase tracking-wider text-neutral-400">
+            <span className="text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
               Prix de départ
             </span>
-            <span className="text-3xl font-serif text-[#a78bfa]">
+            <span className="text-3xl font-serif text-[#4B2377] dark:text-[#a78bfa]">
               {currentObject.price}
             </span>
           </div>
@@ -140,13 +140,13 @@ export default function HeroBandeau() {
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               href={`/encheres/${currentObject.id}`}
-              className="px-6 py-3 bg-[#6d28d9] text-white hover:bg-[#5b21b6] transition-colors text-center font-medium rounded"
+              className="px-6 py-3 bg-[#4B2377] text-white hover:bg-[#3d1d61] dark:bg-[#6d28d9] dark:hover:bg-[#5b21b6] transition-colors text-center font-medium rounded-none dark:rounded"
             >
               Voir l'enchère
             </Link>
             <Link
               href="/encheres"
-              className="px-6 py-3 border border-neutral-700 text-neutral-300 hover:border-[#6d28d9] hover:text-[#a78bfa] transition-colors text-center font-medium rounded"
+              className="px-6 py-3 border border-neutral-300 text-neutral-700 hover:border-[#4B2377] hover:text-[#4B2377] dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-[#6d28d9] dark:hover:text-[#a78bfa] transition-colors text-center font-medium rounded-none dark:rounded"
             >
               Toutes les enchères
             </Link>
