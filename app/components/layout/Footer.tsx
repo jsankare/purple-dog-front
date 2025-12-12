@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import Image from "next/image";
+import logo from "@/public/purple-dog-nobg.webp";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -10,9 +12,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 py-12">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-[#4B2377] flex items-center justify-center">
-                <span className="text-white font-serif text-xl font-bold">P</span>
-              </div>
+              <Link href={"/"}>
+                <Image width={100} src={logo} alt={"Logo purple dog"} />
+              </Link>
               <span className="text-xl font-serif text-neutral-900">
                 Purple Dog
               </span>

@@ -44,6 +44,18 @@ export default function Bot() {
         body: JSON.stringify({ prompt: input }),
       });
 
+      const contentType = res.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+
+        if (data.error) {
+          setResponse(`Purple Dog Bot est parti en promenade. Il devrait bientôt revenir, réessayez un peu plus tard !`);
+          setLoading(false);
+          return;
+        }
+      }
+
       if (!res.ok) {
         setResponse(`Error: ${res.statusText}`);
         setLoading(false);
@@ -87,7 +99,7 @@ export default function Bot() {
 
   return (
     <div
-      className={`fixed bottom-6 right-6 z-50 ${
+      className={`fixed bottom-6 left-15 z-50 ${
         fullScreen
           ? "inset-0 m-0 h-full w-full px-4 py-6 md:px-10 md:py-8"
           : "w-80 md:w-96"

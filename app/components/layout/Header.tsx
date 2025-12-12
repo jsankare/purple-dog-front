@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authAPI } from "@/lib/api";
 import { User, LogOut, Menu, X } from "lucide-react";
+import Image from "next/image";
+import logo from "@/public/purple-dog-nobg.webp";
 
 export default function Header() {
   const router = useRouter();
@@ -60,9 +62,7 @@ export default function Header() {
         <div className="flex h-20 items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group" aria-label="Accueil Purple Dog">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#4B2377] flex items-center justify-center">
-                <span className="text-white font-serif text-xl font-bold">P</span>
-              </div>
+                <Image width={100} src={logo} alt={"Logo purple dog"} />
               <span className="text-2xl font-serif text-neutral-900 group-hover:text-[#4B2377] transition-colors">
                 Purple Dog
               </span>
