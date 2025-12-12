@@ -519,40 +519,4 @@ export const globalsAPI = {
   },
 };
 
-export const profileAPI = {
-  getProfile: async () => {
-    return apiCall('/api/profile');
-  },
 
-  updateProfile: async (data: any) => {
-    return apiCall('/api/profile/update', {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
-  },
-
-  changeEmail: async (data: { newEmail: string; password: string }) => {
-    return apiCall('/api/profile/change-email', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  },
-
-  changePassword: async (data: { currentPassword: string; newPassword: string }) => {
-    return apiCall('/api/profile/change-password', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  },
-
-  getNotifications: async () => {
-    return apiCall('/api/profile/notifications');
-  },
-
-  updateNotifications: async (data: any) => {
-    return apiCall('/api/profile/notifications', {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
-  },
-};
