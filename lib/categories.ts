@@ -9,14 +9,14 @@ export interface Category {
   order?: number
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3007'
 
 /**
  * Récupère toutes les catégories actives depuis l'API
  */
 export async function getCategories(): Promise<Category[]> {
   try {
-    const response = await fetch(`${API_URL}/api/categories?where[isActive][equals]=true&sort=order`, {
+    const response = await fetch(`${API_URL}/categories?where[isActive][equals]=true&sort=order`, {
       cache: 'no-store',
     })
 

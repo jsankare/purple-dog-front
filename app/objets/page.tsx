@@ -235,7 +235,7 @@ export default function ObjectsPage() {
 
   const fetchObjects = async () => {
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7800';
       const response = await fetch(`${API_URL}/api/objects?where[status][equals]=active&limit=100`);
 
       if (!response.ok) {

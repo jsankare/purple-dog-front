@@ -46,11 +46,17 @@ export default function Bot() {
 
       const contentType = res.headers.get("content-type");
 
-      if (contentType && contentType.includes("application/json")) {
+      if (
+        contentType &&
+        contentType.includes("application/json") &&
+        res.status !== 200
+      ) {
         const data = await res.json();
 
         if (data.error) {
-          setResponse(`Purple Dog Bot est parti en promenade. Il devrait bientôt revenir, réessayez un peu plus tard !`);
+          setResponse(
+            `Purple Dog Bot est parti en promenade. Il devrait bientôt revenir, réessayez un peu plus tard !`,
+          );
           setLoading(false);
           return;
         }
@@ -62,7 +68,13 @@ export default function Bot() {
         return;
       }
 
-      const reader = res.body!.getReader();
+      if (!res.body) {
+        setResponse("No response body");
+        setLoading(false);
+        return;
+      }
+
+      const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let partial = "";
 
@@ -77,11 +89,14 @@ export default function Bot() {
           const chunk = partial.substring(0, boundary);
           partial = partial.substring(boundary + 1);
 
-          if (chunk) {
+          if (chunk.trim()) {
             try {
               const parsed = JSON.parse(chunk);
               if (parsed.response) {
                 setResponse((prev) => prev + parsed.response);
+              }
+              if (parsed.done && parsed.done === true) {
+                break;
               }
             } catch (e) {
               console.error("Error parsing JSON chunk:", e);
@@ -90,7 +105,9 @@ export default function Bot() {
         }
       }
     } catch (err) {
-      setResponse("Fetch error");
+      setResponse(
+        "Purple Dog Bot est parti en promenade. Il devrait bientôt revenir, réessayez un peu plus tard !",
+      );
     } finally {
       setLoading(false);
       setInput("");

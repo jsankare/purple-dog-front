@@ -79,11 +79,11 @@ export default function SignupProForm() {
 
     setLoading(true);
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
       const formData = new FormData();
       formData.append('file', officialDoc);
 
-      const uploadResponse = await fetch(`${API_URL}/api/media`, {
+      const uploadResponse = await fetch(`${API_URL}/media`, {
         method: 'POST',
         body: formData,
       });

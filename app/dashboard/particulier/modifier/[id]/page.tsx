@@ -29,8 +29,8 @@ export default function ModifierObjetPage({ params }: { params: Promise<{ id: st
 
   const loadObject = async () => {
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const response = await fetch(`${API_URL}/api/objects/${id}`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+      const response = await fetch(`${API_URL}/objects/${id}`, {
         credentials: 'include',
       });
 

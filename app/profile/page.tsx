@@ -62,7 +62,7 @@ export default function ProfilePage() {
 
   const fetchFeedbacks = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/feedback/my-feedback`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/feedback/my-feedback`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
@@ -84,7 +84,7 @@ export default function ProfilePage() {
 
     setDeletingId(id);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/feedback/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/feedback/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
