@@ -102,18 +102,23 @@ export async function submitReview(data: {
   improvements?: string[];
 }) {
   try {
-    const response = await fetch(`${API_URL}/api/reviews`, {
+    // Map frontend fields to backend expectations
+    // rating -> stars
+    // comments -> comment
+    const response = await fetch(`${API_URL}/api/feedback/submit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(typeof window !== 'undefined' && localStorage.getItem('token')
+          ? { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          : {}),
       },
       body: JSON.stringify({
-        rating: data.rating,
+        stars: data.rating,
         npsScore: data.npsScore,
-        comments: data.comments || '',
-        improvements: data.improvements || [],
-        createdAt: new Date().toISOString(),
+        comment: data.comments || '',
       }),
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -511,5 +516,43 @@ export const transactionsAPI = {
 export const globalsAPI = {
   getSettings: async () => {
     return apiCall('/api/globals/settings');
+  },
+};
+
+export const profileAPI = {
+  getProfile: async () => {
+    return apiCall('/api/profile');
+  },
+
+  updateProfile: async (data: any) => {
+    return apiCall('/api/profile/update', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  changeEmail: async (data: { newEmail: string; password: string }) => {
+    return apiCall('/api/profile/change-email', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  changePassword: async (data: { currentPassword: string; newPassword: string }) => {
+    return apiCall('/api/profile/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  getNotifications: async () => {
+    return apiCall('/api/profile/notifications');
+  },
+
+  updateNotifications: async (data: any) => {
+    return apiCall('/api/profile/notifications', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
   },
 };
